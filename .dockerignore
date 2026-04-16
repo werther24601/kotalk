@@ -1,0 +1,11 @@
+.git
+.github
+.workspace-secrets
+artifacts
+docs/assets
+release-assets
+src/VsMessenger.Web/node_modules
+src/VsMessenger.Web/dist
+**/bin
+**/obj
+**/*.tsbuildinfo

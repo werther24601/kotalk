@@ -1,0 +1,9 @@
+services:
+  webapp:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ${WEBAPP_RELEASE_ROOT:-/srv/vs-messanger/webapp/current}:/usr/share/nginx/html:ro
+      - ./docker/webapp.nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    expose:
+      - "80"

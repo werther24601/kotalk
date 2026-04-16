@@ -1,0 +1,49 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOWNLOAD_HOST} {
+	encode zstd gzip
+	root * /srv/download
+	redir /windows /windows/latest 302
+	redir /android /android/latest 302
+	redir /windows/latest /windows/latest/VsMessenger-win-x64.zip 302
+	redir /android/latest /android/latest/VsMessenger-android-universal.apk 302
+	redir /latest /latest/version.json 302
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+	file_server
+}
+
+{$WEBAPP_HOST:vstalk.phy.kr} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+	handle /v1/* {
+		reverse_proxy api:8080
+	}
+	handle /health {
+		reverse_proxy api:8080
+	}
+	handle {
+		reverse_proxy webapp:80
+	}
+}
+
+{$API_HOST} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+	reverse_proxy api:8080
+}

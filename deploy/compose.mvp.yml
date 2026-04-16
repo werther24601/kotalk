@@ -1,0 +1,42 @@
+services:
+  caddy:
+    image: caddy:2.9-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL}
+      API_HOST: ${API_HOST}
+      DOWNLOAD_HOST: ${DOWNLOAD_HOST}
+      WEBAPP_HOST: ${WEBAPP_HOST:-vstalk.phy.kr}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+      - ${DOWNLOAD_ROOT}:/srv/download:ro
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/docker/api.Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__Main: Data Source=/data/vs-messenger.db
+      Auth__Jwt__Issuer: ${JWT_ISSUER}
+      Auth__Jwt__Audience: ${JWT_AUDIENCE}
+      Auth__Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      Bootstrap__InviteCodes__0: ${BOOTSTRAP_INVITE_CODE}
+    volumes:
+      - api-data:/data
+    expose:
+      - "8080"
+
+volumes:
+  caddy-config:
+  caddy-data:
+  api-data:

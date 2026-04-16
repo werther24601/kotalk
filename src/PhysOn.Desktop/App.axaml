@@ -1,0 +1,16 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PhysOn.Desktop.App"
+             xmlns:local="using:PhysOn.Desktop"
+             RequestedThemeVariant="Default">
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <Style Selector="Application">
+            <Setter Property="TextElement.FontFamily" Value="Pretendard Variable, SUIT Variable, Malgun Gothic, Segoe UI, sans-serif" />
+        </Style>
+    </Application.Styles>
+</Application>

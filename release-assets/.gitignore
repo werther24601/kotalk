@@ -1,0 +1,9 @@
+*
+!.gitignore
+!README.md
+!latest/
+!latest/.gitkeep
+!releases/
+!releases/.gitkeep
+!templates/
+!templates/RELEASE_NOTES.ko.md

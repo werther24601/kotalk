@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+      - release/**
+  pull_request:
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore PhysOn.sln
+
+      - name: Build API
+        run: dotnet build src/PhysOn.Api/PhysOn.Api.csproj -c Release --no-restore
+
+      - name: Build Worker
+        run: dotnet build src/PhysOn.Worker/PhysOn.Worker.csproj -c Release --no-restore
+
+      - name: Run API integration tests
+        run: dotnet test tests/PhysOn.Api.IntegrationTests/PhysOn.Api.IntegrationTests.csproj -c Release --no-restore
+
+  desktop-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore desktop project
+        run: dotnet restore src/PhysOn.Desktop/PhysOn.Desktop.csproj
+
+      - name: Build desktop project
+        run: dotnet build src/PhysOn.Desktop/PhysOn.Desktop.csproj -c Release --no-restore

@@ -1,0 +1,13 @@
+.workspace-secrets/
+.workspace-policy/
+.vs/
+.playwright-cli/
+.vite/
+artifacts/
+releases/
+output/
+*.db
+*.sqlite
+*.sqlite3
+**/bin/
+**/obj/

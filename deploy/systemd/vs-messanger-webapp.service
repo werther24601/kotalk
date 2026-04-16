@@ -1,0 +1,16 @@
+[Unit]
+Description=vs-messanger mobile webapp compose stack
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/vs-messanger/app
+RemainAfterExit=yes
+ExecStart=/usr/bin/docker compose --project-name vs-messanger --env-file deploy/.env -f deploy/compose.mvp.yml -f deploy/compose.webapp.yml up -d webapp caddy
+ExecStop=/usr/bin/docker compose --project-name vs-messanger --env-file deploy/.env -f deploy/compose.mvp.yml -f deploy/compose.webapp.yml stop webapp
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="360" rx="28" fill="#F8F8F7"/>
+  <rect x="32" y="32" width="1136" height="296" rx="24" fill="white" stroke="#E5E7EB"/>
+  <text x="64" y="88" fill="#111827" font-family="Arial, sans-serif" font-size="32" font-weight="700">Public Contract</text>
+  <text x="64" y="120" fill="#6B7280" font-family="Arial, sans-serif" font-size="16">이 저장소가 공개면에서 지키려는 네 가지 약속</text>
+
+  <rect x="64" y="152" width="248" height="128" rx="20" fill="#FAFAFA" stroke="#E5E7EB"/>
+  <text x="88" y="190" fill="#111827" font-family="Arial, sans-serif" font-size="22" font-weight="700">Transparent State</text>
+  <text x="88" y="220" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">README와 상태표는 실제 구현보다</text>
+  <text x="88" y="242" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">좋아 보이도록 과장하지 않는다.</text>
+
+  <rect x="336" y="152" width="248" height="128" rx="20" fill="#FAFAFA" stroke="#E5E7EB"/>
+  <text x="360" y="190" fill="#111827" font-family="Arial, sans-serif" font-size="22" font-weight="700">Release Discipline</text>
+  <text x="360" y="220" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">릴리즈, 스크린샷, 다운로드,</text>
+  <text x="360" y="242" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">CHANGELOG를 같이 맞춘다.</text>
+
+  <rect x="608" y="152" width="248" height="128" rx="20" fill="#FAFAFA" stroke="#E5E7EB"/>
+  <text x="632" y="190" fill="#111827" font-family="Arial, sans-serif" font-size="22" font-weight="700">Korean-first UX</text>
+  <text x="632" y="220" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">번역체보다 실제 한국어 흐름과</text>
+  <text x="632" y="242" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">낮은 피로도의 사용성을 우선한다.</text>
+
+  <rect x="880" y="152" width="248" height="128" rx="20" fill="#FAFAFA" stroke="#E5E7EB"/>
+  <text x="904" y="190" fill="#111827" font-family="Arial, sans-serif" font-size="22" font-weight="700">Open Planning</text>
+  <text x="904" y="220" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">문서와 비판적 리뷰를 공개해</text>
+  <text x="904" y="242" fill="#6B7280" font-family="Arial, sans-serif" font-size="15">방향과 한계를 숨기지 않는다.</text>
+</svg>

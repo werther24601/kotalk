@@ -1,0 +1,142 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PhysOn.Desktop.ViewModels"
+        x:Class="PhysOn.Desktop.Views.ConversationWindow"
+        x:DataType="vm:ConversationWindowViewModel"
+        Width="460"
+        Height="760"
+        MinWidth="360"
+        MinHeight="520"
+        Background="#F6F7F8"
+        Title="{Binding ConversationTitle}">
+
+    <Window.Styles>
+        <Style Selector="Border.surface">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#E6E8EB" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Border.soft">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="#F7F8F9" />
+            <Setter Property="BorderBrush" Value="#ECEEF1" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Button.icon">
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Padding" Value="9,7" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#D9DDE2" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Button.primary">
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="#6A7380" />
+        </Style>
+        <Style Selector="TextBlock.body">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="#151A20" />
+        </Style>
+        <Style Selector="Border.bubble">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="8,7" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+            <Setter Property="Background" Value="#F6F7F8" />
+            <Setter Property="BorderBrush" Value="#EAEDF0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style Selector="Border.bubble.mine">
+            <Setter Property="Background" Value="#ECEFF3" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+    </Window.Styles>
+
+    <Grid Margin="16" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="10">
+        <Border Classes="surface" Padding="12">
+            <Grid ColumnDefinitions="42,*,Auto" ColumnSpacing="12">
+                <Border Width="42" Height="42" Classes="soft">
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Text="{Binding ConversationGlyph}"
+                               FontWeight="SemiBold"
+                               Foreground="#151A20" />
+                </Border>
+
+                <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding ConversationTitle}"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="#151A20"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Border Classes="soft" Padding="8,5">
+                        <TextBlock Text="{Binding StatusText}" Classes="caption" />
+                    </Border>
+                    <Button Classes="icon"
+                            Command="{Binding ReloadCommand}"
+                            Content="↻" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Classes="surface"
+                Padding="10"
+                IsVisible="{Binding HasErrorText}">
+            <TextBlock Text="{Binding ErrorText}"
+                       Foreground="#C62828"
+                       Classes="caption"
+                       TextWrapping="Wrap" />
+        </Border>
+
+        <Border Grid.Row="2" Classes="surface" Padding="12">
+            <ScrollViewer Name="MessagesScrollViewer">
+                <ItemsControl ItemsSource="{Binding Messages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:MessageRowViewModel">
+                            <Border Classes="bubble"
+                                    Classes.mine="{Binding IsMine}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{Binding SenderName}"
+                                               Classes="caption"
+                                               FontWeight="SemiBold"
+                                               IsVisible="{Binding ShowSenderName}" />
+                                    <TextBlock Text="{Binding Text}"
+                                               Classes="body"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding MetaText}" Classes="caption" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Row="3" Classes="surface" Padding="10">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <TextBox Name="ComposerTextBox"
+                         PlaceholderText="메시지"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="46"
+                         Text="{Binding ComposerText}"
+                         KeyDown="ComposerTextBox_OnKeyDown" />
+                <Button Grid.Column="1"
+                        Classes="primary"
+                        Command="{Binding SendMessageCommand}"
+                        Content="보내기" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

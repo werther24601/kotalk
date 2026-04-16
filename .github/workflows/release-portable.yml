@@ -1,0 +1,231 @@
+name: release-clients
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "릴리즈 버전. 예: v0.1.0-alpha.1"
+        required: true
+        type: string
+      channel:
+        description: "릴리즈 채널"
+        required: true
+        default: alpha
+        type: choice
+        options:
+          - alpha
+          - beta
+          - rc
+          - stable
+      upload_to_vps:
+        description: "준비된 릴리즈 번들을 VPS 다운로드 호스트로 업로드"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore desktop project
+        run: dotnet restore src/VsMessenger.Desktop/VsMessenger.Desktop.csproj
+
+      - name: Publish portable desktop build
+        run: dotnet publish src/VsMessenger.Desktop/VsMessenger.Desktop.csproj -c Release -r win-x64 --self-contained true -o out/win-x64
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: Compress-Archive -Path out/win-x64/* -DestinationPath out/VsMessenger-win-x64.zip
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable
+          path: out/VsMessenger-win-x64.zip
+
+  build-android:
+    if: ${{ hashFiles('src/VsMessenger.Mobile.Android/*.csproj') != '' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install Android workload
+        run: dotnet workload install android
+
+      - name: Restore Android project
+        run: dotnet restore src/VsMessenger.Mobile.Android/VsMessenger.Mobile.Android.csproj
+
+      - name: Publish Android APK
+        run: |
+          dotnet publish src/VsMessenger.Mobile.Android/VsMessenger.Mobile.Android.csproj \
+            -c Release \
+            -f net8.0-android \
+            -p:AndroidPackageFormat=apk \
+            -p:AndroidKeyStore=false \
+            -o out/android
+
+      - name: Collect Android artifact
+        run: |
+          apk_path="$(find out/android -type f -name '*.apk' | head -n 1)"
+          test -n "$apk_path"
+          cp "$apk_path" out/VsMessenger-android-universal.apk
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: out/VsMessenger-android-universal.apk
+
+  assemble-release:
+    if: ${{ always() && needs.build-windows.result == 'success' && (needs.build-android.result == 'success' || needs.build-android.result == 'skipped') }}
+    needs:
+      - build-windows
+      - build-android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-portable
+          path: incoming/windows
+
+      - name: Download Android artifact
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: incoming/android
+
+      - name: Prepare release bundle
+        env:
+          VERSION_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          CHANNEL_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.channel || '' }}
+        run: |
+          chmod +x scripts/release/release-prepare-assets.sh
+
+          channel="${CHANNEL_INPUT}"
+          if [[ -z "$channel" ]]; then
+            case "$VERSION_INPUT" in
+              *alpha*) channel="alpha" ;;
+              *beta*) channel="beta" ;;
+              *rc*) channel="rc" ;;
+              *) channel="stable" ;;
+            esac
+          fi
+
+          prepare_args=(
+            --version "$VERSION_INPUT"
+            --channel "$channel"
+            --windows-zip incoming/windows/VsMessenger-win-x64.zip
+            --force
+          )
+
+          if [[ -f incoming/android/VsMessenger-android-universal.apk ]]; then
+            prepare_args+=(--android-apk incoming/android/VsMessenger-android-universal.apk)
+          fi
+
+          ./scripts/release/release-prepare-assets.sh \
+            "${prepare_args[@]}"
+
+      - name: Upload release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-bundle
+          path: release-assets
+
+  publish-forge-release:
+    if: ${{ secrets.FORGE_RELEASE_TOKEN != '' }}
+    needs: assemble-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download release bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: release-bundle
+          path: .
+
+      - name: Publish release to forge
+        env:
+          VERSION_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          FORGE_RELEASE_TOKEN: ${{ secrets.FORGE_RELEASE_TOKEN }}
+        run: |
+          chmod +x scripts/release/release-publish-forge.sh
+          ./scripts/release/release-publish-forge.sh --version "$VERSION_INPUT"
+
+  upload-to-vps:
+    if: github.event_name == 'workflow_dispatch' && inputs.upload_to_vps
+    needs: assemble-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download release bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: release-bundle
+          path: .
+
+      - name: Configure SSH key
+        env:
+          DOWNLOAD_SSH_KEY: ${{ secrets.DOWNLOAD_SSH_KEY }}
+        run: |
+          test -n "$DOWNLOAD_SSH_KEY"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DOWNLOAD_SSH_KEY" > ~/.ssh/download_host
+          chmod 600 ~/.ssh/download_host
+
+      - name: Upload bundle to download host
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+          DOWNLOAD_SSH_HOST: ${{ secrets.DOWNLOAD_SSH_HOST }}
+          DOWNLOAD_SSH_USER: ${{ secrets.DOWNLOAD_SSH_USER }}
+          DOWNLOAD_ROOT: ${{ secrets.DOWNLOAD_ROOT }}
+        run: |
+          test -n "$DOWNLOAD_SSH_HOST"
+          test -n "$DOWNLOAD_SSH_USER"
+          test -n "$DOWNLOAD_ROOT"
+          chmod +x scripts/release/release-upload-assets.sh
+          ./scripts/release/release-upload-assets.sh \
+            --version "$VERSION_INPUT" \
+            --host "$DOWNLOAD_SSH_HOST" \
+            --user "$DOWNLOAD_SSH_USER" \
+            --target "$DOWNLOAD_ROOT" \
+            --ssh-key ~/.ssh/download_host

@@ -1,0 +1,41 @@
+<svg width="1200" height="520" viewBox="0 0 1200 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="520" fill="#F7F8FA"/>
+  <rect x="48" y="48" width="1104" height="424" rx="28" fill="white" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="88" y="110" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="700">Open Source Surface</text>
+  <text x="88" y="144" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="18">코드만이 아니라 상태, 문서, 릴리즈, 라이브 채널까지 한 화면에서 읽히는 저장소를 목표로 합니다.</text>
+
+  <rect x="88" y="188" width="196" height="216" rx="22" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="112" y="232" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Code</text>
+  <text x="112" y="268" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Desktop</text>
+  <text x="112" y="294" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Mobile Web</text>
+  <text x="112" y="320" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">API</text>
+  <text x="112" y="368" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">실제 구현의 중심</text>
+
+  <rect x="304" y="188" width="196" height="216" rx="22" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="328" y="232" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Docs</text>
+  <text x="328" y="268" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">README</text>
+  <text x="328" y="294" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Status</text>
+  <text x="328" y="320" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Master Plan</text>
+  <text x="328" y="368" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">방향과 현실의 정합성</text>
+
+  <rect x="520" y="188" width="196" height="216" rx="22" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="544" y="232" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Releases</text>
+  <text x="544" y="268" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Forge Releases</text>
+  <text x="544" y="294" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Download Host</text>
+  <text x="544" y="320" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Checksums</text>
+  <text x="544" y="368" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">받아볼 수 있는 결과물</text>
+
+  <rect x="736" y="188" width="196" height="216" rx="22" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="760" y="232" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Live</text>
+  <text x="760" y="268" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">vstalk.phy.kr</text>
+  <text x="760" y="294" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Health</text>
+  <text x="760" y="320" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Screenshots</text>
+  <text x="760" y="368" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">지금 직접 확인 가능한 표면</text>
+
+  <rect x="952" y="188" width="152" height="216" rx="22" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="976" y="232" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">People</text>
+  <text x="976" y="268" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Issues</text>
+  <text x="976" y="294" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">PRs</text>
+  <text x="976" y="320" fill="#6B7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Maintainers</text>
+  <text x="976" y="368" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">기여와 운영의 접점</text>
+</svg>
