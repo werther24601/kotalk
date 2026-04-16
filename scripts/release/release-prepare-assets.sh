@@ -96,9 +96,15 @@ release_root="$repo_root/release-assets/releases/$version"
 latest_root="$repo_root/release-assets/latest"
 template_path="$repo_root/release-assets/templates/RELEASE_NOTES.ko.md"
 download_base_url="${DOWNLOAD_BASE_URL:-https://download-vstalk.phy.kr}"
+release_base_url="${RELEASE_BASE_URL:-}"
 published_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 derive_release_url() {
+  if [[ -n "$release_base_url" ]]; then
+    printf '%s/releases/tag/%s' "${release_base_url%/}" "$version"
+    return 0
+  fi
+
   local origin_url
   origin_url="$(git -C "$repo_root" remote get-url origin 2>/dev/null || true)"
 
