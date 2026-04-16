@@ -45,7 +45,7 @@ function resolveErrorMessage(status: number, code?: string, fallback?: string): 
     return '지금은 연결이 고르지 않습니다. 잠시 후 다시 시도해 주세요.'
   }
 
-  if (code === 'invite_code_invalid') {
+  if (code === 'invite_code_invalid' || code === 'invite_invalid') {
     return '초대코드를 다시 확인해 주세요.'
   }
 

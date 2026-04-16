@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/release/build-android-apk.sh --version 2026.04.16-alpha.6 [options]
+  ./scripts/release/build-android-apk.sh --version 2026.04.16-alpha.11 [options]
 
 Options:
   --configuration <name>   Build configuration. Default: Release
@@ -103,7 +103,11 @@ fi
   -p:JavaSdkDirectory="${JAVA_HOME:-}" \
   -o "$publish_dir"
 
-apk_source="$(find "$publish_dir" -type f -name '*.apk' | head -n 1)"
+apk_source="$(find "$publish_dir" -type f -name '*-Signed.apk' | sort | head -n 1)"
+if [[ -z "$apk_source" ]]; then
+  apk_source="$(find "$publish_dir" -type f -name '*.apk' | sort | head -n 1)"
+fi
+
 if [[ -z "$apk_source" ]]; then
   echo "Android publish did not produce an APK." >&2
   exit 1

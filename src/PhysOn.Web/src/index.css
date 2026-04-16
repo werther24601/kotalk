@@ -27,6 +27,8 @@
   --text-soft: #3b414b;
   --text-muted: #82766d;
   --focus-ring: #c07a43;
+  --app-frame-width: 392px;
+  --bottom-bar-safe-height: calc(74px + env(safe-area-inset-bottom));
 }
 
 * {

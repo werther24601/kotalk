@@ -8,8 +8,8 @@
     <RootNamespace>PhysOn.Mobile.Android</RootNamespace>
     <AssemblyName>KoTalk.Mobile.Android</AssemblyName>
     <ApplicationId>kr.physia.kotalk</ApplicationId>
-    <ApplicationVersion>6</ApplicationVersion>
-    <ApplicationDisplayVersion>0.1.0-alpha.6</ApplicationDisplayVersion>
+    <ApplicationVersion>11</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1.0-alpha.11</ApplicationDisplayVersion>
     <Company>PHYSIA</Company>
     <Authors>PHYSIA</Authors>
     <Product>KoTalk</Product>

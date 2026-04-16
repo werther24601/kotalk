@@ -12,10 +12,10 @@
     <Product>KoTalk</Product>
     <Description>한국어 중심의 차분한 메시징 경험을 다시 설계하는 Windows-first 메신저</Description>
     <AssemblyTitle>KoTalk</AssemblyTitle>
-    <AssemblyVersion>0.1.0.6</AssemblyVersion>
-    <FileVersion>0.1.0.6</FileVersion>
-    <Version>0.1.0-alpha.6</Version>
-    <InformationalVersion>0.1.0-alpha.6</InformationalVersion>
+    <AssemblyVersion>0.1.0.11</AssemblyVersion>
+    <FileVersion>0.1.0.11</FileVersion>
+    <Version>0.1.0-alpha.11</Version>
+    <InformationalVersion>0.1.0-alpha.11</InformationalVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 

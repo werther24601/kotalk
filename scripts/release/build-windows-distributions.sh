@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/release/build-windows-distributions.sh --version 2026.04.16-alpha.6 [options]
+  ./scripts/release/build-windows-distributions.sh --version 2026.04.16-alpha.11 [options]
 
 Options:
   --configuration <name>   Build configuration. Default: Release

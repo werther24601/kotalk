@@ -38,3 +38,10 @@
 - 이 폴더가 최종 기획 기준이다.
 - `docs/`는 공개 보조 문서와 시각 자산을 다룬다.
 - 소스 네임스페이스와 프로젝트 파일명 정렬은 별도 구현 작업에서 진행한다.
+
+## 공개 문서 기획
+
+- [115-public-technical-profile-plan.md](115-public-technical-profile-plan.md)
+- [116-public-security-profile-plan.md](116-public-security-profile-plan.md)
+- [117-public-doc-surface-and-link-plan.md](117-public-doc-surface-and-link-plan.md)
+- [118-public-technical-security-doc-roadmap.md](118-public-technical-security-doc-roadmap.md)

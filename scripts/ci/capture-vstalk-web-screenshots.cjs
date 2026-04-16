@@ -242,6 +242,14 @@ async function installSessionMocks(page) {
 
     window.localStorage.setItem('vs-talk.session', JSON.stringify(session))
     window.localStorage.setItem('vs-talk.invite-code', 'ALPHA')
+    window.localStorage.setItem('vs-talk.recent-conversations', JSON.stringify(['conv-team', 'conv-friends']))
+    window.localStorage.setItem(
+      'vs-talk.follow-up',
+      JSON.stringify({
+        'conv-team': 'today',
+        'conv-friends': 'later',
+      }),
+    )
     window.WebSocket = FakeWebSocket
   }, storedSession)
 
@@ -355,6 +363,8 @@ async function captureSearch(browser) {
   await page.waitForSelector('.bottom-bar')
   await page.click('.bottom-bar .nav-button:nth-child(2)')
   await page.waitForSelector('.search-field')
+  await page.type('.search-field input', '공유안')
+  await page.waitForSelector('.search-result')
   const app = await page.waitForSelector('.shell')
   await app.screenshot({
     path: path.join(outputDir, 'vstalk-web-search.png'),

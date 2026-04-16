@@ -3,10 +3,10 @@
         xmlns:vm="using:PhysOn.Desktop.ViewModels"
         x:Class="PhysOn.Desktop.Views.ConversationWindow"
         x:DataType="vm:ConversationWindowViewModel"
-        Width="404"
-        Height="748"
-        MinWidth="340"
-        MinHeight="520"
+        Width="560"
+        Height="720"
+        MinWidth="420"
+        MinHeight="500"
         Background="#F7F3EE"
         Title="{Binding ConversationTitle}">
 
@@ -59,8 +59,8 @@
         </Style>
     </Window.Styles>
 
-    <Grid Margin="10" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
-        <Border Classes="surface" Padding="10">
+    <Grid Margin="6" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="6">
+        <Border Classes="surface" Padding="8">
             <Grid ColumnDefinitions="40,*,Auto,Auto" ColumnSpacing="10">
                 <Border Width="40" Height="40" Classes="muted">
                     <TextBlock HorizontalAlignment="Center"
@@ -94,7 +94,7 @@
 
         <Border Grid.Row="1"
                 Classes="surface"
-                Padding="9"
+                Padding="8"
                 IsVisible="{Binding HasErrorText}">
             <TextBlock Text="{Binding ErrorText}"
                        Foreground="#C9573C"
@@ -102,8 +102,8 @@
                        TextWrapping="Wrap" />
         </Border>
 
-        <Border Grid.Row="2" Classes="surface" Padding="8">
-            <ScrollViewer Name="MessagesScrollViewer" MaxWidth="360" HorizontalAlignment="Center">
+        <Border Grid.Row="2" Classes="surface" Padding="6">
+            <ScrollViewer Name="MessagesScrollViewer" HorizontalAlignment="Stretch">
                 <ItemsControl ItemsSource="{Binding Messages}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:MessageRowViewModel">
@@ -126,7 +126,7 @@
             </ScrollViewer>
         </Border>
 
-        <Border Grid.Row="3" Classes="muted" Padding="8" MaxWidth="360" HorizontalAlignment="Center">
+        <Border Grid.Row="3" Classes="muted" Padding="6" HorizontalAlignment="Stretch">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                 <TextBox Name="ComposerTextBox"
                          PlaceholderText="메시지"

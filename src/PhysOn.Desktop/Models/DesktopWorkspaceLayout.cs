@@ -4,4 +4,7 @@ public sealed record DesktopWorkspaceLayout(
     bool IsCompactDensity,
     bool IsInspectorVisible,
     bool IsConversationPaneCollapsed,
-    double ConversationPaneWidth = 348);
+    double ConversationPaneWidth = 304,
+    double? WindowWidth = null,
+    double? WindowHeight = null,
+    bool IsWindowMaximized = false);

@@ -27,7 +27,7 @@ namespace PhysOn.Mobile.Android;
         ConfigChanges.Density)]
 public class MainActivity : Activity
 {
-    private const string AppVersion = "0.1.0-alpha.6";
+    private const string AppVersion = "0.1.0-alpha.11";
     private const string HomeUrl = "https://vstalk.phy.kr";
 
     private static readonly HashSet<string> AllowedHosts = new(StringComparer.OrdinalIgnoreCase)

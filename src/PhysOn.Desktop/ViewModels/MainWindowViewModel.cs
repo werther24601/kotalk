@@ -15,14 +15,28 @@ namespace PhysOn.Desktop.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
 {
     private const string DefaultApiBaseUrl = "https://vstalk.phy.kr";
+    private const string DefaultPublicAlphaKey = "ALPHA-OPEN-2026";
+    private const double DefaultWorkspaceWindowWidth = 1180;
+    private const double DefaultWorkspaceWindowHeight = 760;
+    private const double DefaultOnboardingWindowWidth = 420;
+    private const double DefaultOnboardingWindowHeight = 508;
+    private const double MinWorkspaceWindowWidth = 840;
+    private const double MinWorkspaceWindowHeight = 560;
+    private const double MinOnboardingWindowWidth = 404;
+    private const double MinOnboardingWindowHeight = 468;
+    private const double DefaultConversationPaneWidth = 304;
+    private const double MinConversationPaneWidth = 248;
+    private const double MaxConversationPaneWidth = 360;
     private readonly PhysOnApiClient _apiClient = new();
     private readonly SessionStore _sessionStore = new();
     private readonly PhysOnRealtimeClient _realtimeClient = new();
     private readonly WorkspaceLayoutStore _workspaceLayoutStore;
     private readonly IConversationWindowManager _conversationWindowManager;
+    private readonly Dictionary<string, List<MessageRowViewModel>> _messageCache = new(StringComparer.Ordinal);
 
     private DesktopSession? _session;
     private string? _currentUserId;
+    private bool _isSampleWorkspace;
 
     public MainWindowViewModel()
         : this(new ConversationWindowManager(), new WorkspaceLayoutStore())
@@ -116,8 +130,12 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     [ObservableProperty] private bool isCompactDensity = true;
     [ObservableProperty] private bool isInspectorVisible;
     [ObservableProperty] private bool isConversationPaneCollapsed;
-    [ObservableProperty] private double conversationPaneWidthValue = 348;
+    [ObservableProperty] private bool isConversationLoading;
+    [ObservableProperty] private double conversationPaneWidthValue = DefaultConversationPaneWidth;
     [ObservableProperty] private int detachedWindowCount;
+    [ObservableProperty] private double? windowWidth;
+    [ObservableProperty] private double? windowHeight;
+    [ObservableProperty] private bool isWindowMaximized;
 
     public bool ShowOnboarding => !IsAuthenticated;
     public bool ShowShell => IsAuthenticated;
@@ -128,7 +146,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     public int UnreadConversationCount => Conversations.Count(item => item.UnreadCount > 0);
     public int PinnedConversationCount => Conversations.Count(item => item.IsPinned);
     public bool ShowConversationEmptyState => !HasFilteredConversations;
-    public string AdvancedSettingsButtonText => ShowAdvancedSettings ? "기본" : "고급";
+    public string AdvancedSettingsButtonText => ShowAdvancedSettings ? "옵션 닫기" : "옵션";
     public string CurrentUserMonogram =>
         string.IsNullOrWhiteSpace(CurrentUserDisplayName) ? "KO" : CurrentUserDisplayName.Trim()[..Math.Min(2, CurrentUserDisplayName.Trim().Length)];
     public string AllFilterButtonText => "◎";
@@ -162,12 +180,14 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     public bool IsConversationPaneExpanded => !IsConversationPaneCollapsed;
     public double ConversationPaneWidth => IsConversationPaneCollapsed ? 0 : ConversationPaneWidthValue;
     public double InspectorPaneWidth => IsInspectorVisible ? (IsCompactDensity ? 92 : 108) : 0;
+    public bool HasPersistedWindowBounds => WindowWidth is > 0 && WindowHeight is > 0;
     public Thickness ConversationRowPadding => IsCompactDensity ? new Thickness(6, 5) : new Thickness(8, 6);
     public Thickness MessageBubblePadding => IsCompactDensity ? new Thickness(10, 7) : new Thickness(12, 9);
     public double ConversationAvatarSize => IsCompactDensity ? 28 : 32;
     public double ComposerMinHeight => IsCompactDensity ? 48 : 58;
     public string ComposerCounterText => $"{ComposerText.Trim().Length}";
     public string SearchWatermark => "검색";
+    public bool HasConversationSearchText => !string.IsNullOrWhiteSpace(ConversationSearchText);
     public string InspectorStatusText => HasDetachedWindows
         ? $"{RealtimeStatusGlyph} {DetachedWindowBadgeText}"
         : RealtimeStatusGlyph;
@@ -175,11 +195,31 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     public string StatusSummaryText => string.IsNullOrWhiteSpace(StatusLine) ? RealtimeStatusText : StatusLine;
     public string ComposerPlaceholderText => HasSelectedConversation ? "메시지" : "대화 선택";
     public string ComposerActionText => Messages.Count == 0 ? "시작" : "보내기";
-    public bool ShowMessageEmptyState => Messages.Count == 0;
+    public bool ShowMessageEmptyState => Messages.Count == 0 && !IsConversationLoading;
+    public bool ShowConversationLoadingState => HasSelectedConversation && IsConversationLoading;
     public string MessageEmptyStateTitle => HasSelectedConversation ? "첫 메시지" : "대화 선택";
     public string MessageEmptyStateText => HasSelectedConversation
         ? "짧게 남기세요."
         : "목록에서 선택";
+
+    public (double Width, double Height, bool IsMaximized) GetSuggestedWindowLayout()
+    {
+        if (HasPersistedWindowBounds)
+        {
+            return (WindowWidth!.Value, WindowHeight!.Value, IsWindowMaximized);
+        }
+
+        return ShowOnboarding
+            ? (DefaultOnboardingWindowWidth, DefaultOnboardingWindowHeight, false)
+            : (DefaultWorkspaceWindowWidth, DefaultWorkspaceWindowHeight, false);
+    }
+
+    public (double MinWidth, double MinHeight) GetSuggestedWindowConstraints()
+    {
+        return ShowOnboarding
+            ? (MinOnboardingWindowWidth, MinOnboardingWindowHeight)
+            : (MinWorkspaceWindowWidth, MinWorkspaceWindowHeight);
+    }
 
     public async Task InitializeAsync()
     {
@@ -222,6 +262,37 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         }
     }
 
+    public void ClearSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(ConversationSearchText))
+        {
+            ConversationSearchText = string.Empty;
+        }
+    }
+
+    public async Task ActivateSearchResultAsync(bool detach)
+    {
+        if (!HasConversationSearchText)
+        {
+            return;
+        }
+
+        var target = FilteredConversations.FirstOrDefault();
+        if (target is null)
+        {
+            return;
+        }
+
+        if (detach)
+        {
+            await DetachConversationRowAsync(target);
+            return;
+        }
+
+        SelectedConversation = target;
+        ClearSearch();
+    }
+
     partial void OnIsAuthenticatedChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowOnboarding));
@@ -236,7 +307,11 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     partial void OnDisplayNameChanged(string value) => SignInCommand.NotifyCanExecuteChanged();
     partial void OnInviteCodeChanged(string value) => SignInCommand.NotifyCanExecuteChanged();
     partial void OnShowAdvancedSettingsChanged(bool value) => OnPropertyChanged(nameof(AdvancedSettingsButtonText));
-    partial void OnConversationSearchTextChanged(string value) => RefreshConversationFilter();
+    partial void OnConversationSearchTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasConversationSearchText));
+        RefreshConversationFilter();
+    }
     partial void OnSelectedListFilterChanged(string value)
     {
         OnPropertyChanged(nameof(IsAllFilterSelected));
@@ -299,6 +374,11 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         OnPropertyChanged(nameof(InspectorStatusText));
         OnPropertyChanged(nameof(WorkspaceModeText));
     }
+    partial void OnIsConversationLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowConversationLoadingState));
+        NotifyMessageStateChanged();
+    }
 
     partial void OnSelectedConversationChanged(ConversationRowViewModel? value)
     {
@@ -324,12 +404,12 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
             var apiBaseUrl = ResolveApiBaseUrl();
             var request = new RegisterAlphaQuickRequest(
                 DisplayName.Trim(),
-                InviteCode.Trim(),
+                InviteCode.Trim() is { Length: > 0 } inviteCode ? inviteCode : DefaultPublicAlphaKey,
                 new DeviceRegistrationDto(
                     $"desktop-{Environment.MachineName.ToLowerInvariant()}",
                     "windows",
                     Environment.MachineName,
-                    "0.1.0-alpha.6"));
+                    "0.1.0-alpha.11"));
 
             var response = await _apiClient.RegisterAlphaQuickAsync(apiBaseUrl, request, CancellationToken.None);
             ApiBaseUrl = apiBaseUrl;
@@ -371,7 +451,10 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         Conversations.Clear();
         FilteredConversations.Clear();
         Messages.Clear();
+        _messageCache.Clear();
         IsAuthenticated = false;
+        IsConversationLoading = false;
+        _isSampleWorkspace = false;
         CurrentUserDisplayName = "KO";
         StatusLine = string.Empty;
         RealtimeState = RealtimeConnectionState.Idle;
@@ -390,53 +473,83 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     {
         if (!IsAuthenticated || value is null || _session is null)
         {
+            IsConversationLoading = false;
             return;
         }
 
-        Messages.Clear();
-        NotifyMessageStateChanged();
-
-        await RunBusyAsync(async () =>
+        var conversationId = value.ConversationId;
+        if (_isSampleWorkspace)
         {
-            var items = await _apiClient.GetMessagesAsync(_session.ApiBaseUrl, _session.AccessToken, value.ConversationId, CancellationToken.None);
-
-            if (!string.Equals(SelectedConversation?.ConversationId, value.ConversationId, StringComparison.Ordinal))
+            if (_messageCache.TryGetValue(conversationId, out var sampleItems))
             {
-                return;
+                ReplaceMessages(sampleItems);
             }
 
+            IsConversationLoading = false;
+            return;
+        }
+
+        if (_messageCache.TryGetValue(conversationId, out var cachedItems))
+        {
+            ReplaceMessages(cachedItems);
+        }
+        else
+        {
             Messages.Clear();
-            foreach (var item in items.Items)
-            {
-                Messages.Add(MapMessage(item));
-            }
-
-            if (Messages.Count > 0)
-            {
-                var lastSequence = Messages[^1].ServerSequence;
-                value.LastReadSequence = lastSequence;
-                value.UnreadCount = 0;
-                await _apiClient.UpdateReadCursorAsync(
-                    _session.ApiBaseUrl,
-                    _session.AccessToken,
-                    value.ConversationId,
-                    new UpdateReadCursorRequest(lastSequence),
-                    CancellationToken.None);
-            }
-
-            NotifyConversationMetricsChanged();
             NotifyMessageStateChanged();
-            RefreshConversationFilter(value.ConversationId);
+        }
 
-            if (_session is not null)
+        IsConversationLoading = true;
+
+        try
+        {
+            await RunBusyAsync(async () =>
             {
-                _session = _session with { LastConversationId = value.ConversationId };
-                if (RememberSession)
+                var items = await _apiClient.GetMessagesAsync(_session.ApiBaseUrl, _session.AccessToken, conversationId, CancellationToken.None);
+                var mappedItems = items.Items.Select(MapMessage).ToList();
+
+                if (!string.Equals(SelectedConversation?.ConversationId, conversationId, StringComparison.Ordinal))
                 {
-                    await _sessionStore.SaveAsync(_session);
+                    return;
                 }
+
+                ReplaceMessages(mappedItems);
+                _messageCache[conversationId] = CloneMessages(mappedItems);
+
+                if (Messages.Count > 0)
+                {
+                    var lastSequence = Messages[^1].ServerSequence;
+                    value.LastReadSequence = lastSequence;
+                    value.UnreadCount = 0;
+                    await _apiClient.UpdateReadCursorAsync(
+                        _session.ApiBaseUrl,
+                        _session.AccessToken,
+                        conversationId,
+                        new UpdateReadCursorRequest(lastSequence),
+                        CancellationToken.None);
+                }
+
+                NotifyConversationMetricsChanged();
+                NotifyMessageStateChanged();
+                RefreshConversationFilter(conversationId);
+
+                if (_session is not null)
+                {
+                    _session = _session with { LastConversationId = conversationId };
+                    if (RememberSession)
+                    {
+                        await _sessionStore.SaveAsync(_session);
+                    }
+                }
+            }, clearMessages: false);
+        }
+        finally
+        {
+            if (string.Equals(SelectedConversation?.ConversationId, conversationId, StringComparison.Ordinal))
+            {
+                IsConversationLoading = false;
             }
-        }, clearMessages: false);
+        }
     }
 
     private async Task SendMessageAsync()
@@ -529,8 +642,12 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
 
     private void ApplyBootstrap(BootstrapResponse bootstrap, string displayName, string? preferredConversationId)
     {
+        _isSampleWorkspace = false;
         _currentUserId = bootstrap.Me.UserId;
         CurrentUserDisplayName = displayName;
+        _messageCache.Clear();
+        Messages.Clear();
+        IsConversationLoading = false;
         Conversations.Clear();
 
         foreach (var item in bootstrap.Conversations.Items)
@@ -568,8 +685,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
 
     private bool CanSignIn() =>
         !IsBusy &&
-        !string.IsNullOrWhiteSpace(DisplayName) &&
-        !string.IsNullOrWhiteSpace(InviteCode);
+        !string.IsNullOrWhiteSpace(DisplayName);
 
     private bool CanSendMessage() =>
         !IsBusy &&
@@ -612,9 +728,10 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     private void RefreshConversationFilter(string? preferredConversationId = null)
     {
         var search = ConversationSearchText.Trim();
+        var hasSearch = !string.IsNullOrWhiteSpace(search);
         var filtered = Conversations
             .Where(PassesSelectedFilter)
-            .Where(item => string.IsNullOrWhiteSpace(search) || MatchesConversationSearch(item, search))
+            .Where(item => !hasSearch || MatchesConversationSearch(item, search))
             .ToList();
 
         FilteredConversations.Clear();
@@ -624,7 +741,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         }
 
         HasFilteredConversations = filtered.Count > 0;
-        ConversationEmptyStateText = string.IsNullOrWhiteSpace(search)
+        ConversationEmptyStateText = !hasSearch
             ? (SelectedListFilter switch
             {
                 "unread" => "안읽음 대화가 없습니다.",
@@ -640,7 +757,16 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
 
         if (target is null)
         {
-            target = FilteredConversations.FirstOrDefault();
+            target = hasSearch
+                ? null
+                : FilteredConversations.FirstOrDefault();
+        }
+
+        if (hasSearch && preferredConversationId is null && target is null)
+        {
+            UpdateSelectedConversationState(SelectedConversation?.ConversationId);
+            NotifyMessageStateChanged();
+            return;
         }
 
         if (!ReferenceEquals(SelectedConversation, target))
@@ -664,11 +790,19 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         };
     }
 
-    private static bool MatchesConversationSearch(ConversationRowViewModel item, string search)
+    private bool MatchesConversationSearch(ConversationRowViewModel item, string search)
     {
-        return item.Title.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
-               item.LastMessageText.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
-               item.Subtitle.Contains(search, StringComparison.CurrentCultureIgnoreCase);
+        if (item.Title.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+            item.LastMessageText.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+            item.Subtitle.Contains(search, StringComparison.CurrentCultureIgnoreCase))
+        {
+            return true;
+        }
+
+        return _messageCache.TryGetValue(item.ConversationId, out var cachedItems) &&
+               cachedItems.Any(message =>
+                   message.Text.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                   message.SenderName.Contains(search, StringComparison.CurrentCultureIgnoreCase));
     }
 
     private void UpdateSelectedConversationState(string? conversationId)
@@ -694,11 +828,27 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
             return;
         }
 
-        var clamped = Math.Clamp(Math.Round(width), 280, 480);
+        var clamped = Math.Clamp(Math.Round(width), MinConversationPaneWidth, MaxConversationPaneWidth);
         if (Math.Abs(clamped - ConversationPaneWidthValue) > 1)
         {
             ConversationPaneWidthValue = clamped;
         }
+    }
+
+    public void CaptureWindowLayout(double width, double height, bool maximized)
+    {
+        if (width > 0)
+        {
+            WindowWidth = Math.Round(width);
+        }
+
+        if (height > 0)
+        {
+            WindowHeight = Math.Round(height);
+        }
+
+        IsWindowMaximized = maximized;
+        _ = PersistWorkspaceLayoutAsync();
     }
 
     private void ApplyQuickDraft(string template)
@@ -710,6 +860,8 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
 
     private void LoadSampleWorkspace()
     {
+        _isSampleWorkspace = true;
+        _messageCache.Clear();
         Conversations.Clear();
         FilteredConversations.Clear();
         Messages.Clear();
@@ -908,6 +1060,8 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
             Messages.Add(item);
         }
 
+        _messageCache["sample-ops"] = CloneMessages(Messages);
+
         OnPropertyChanged(nameof(CurrentUserMonogram));
         NotifyMessageStateChanged();
     }
@@ -920,6 +1074,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     private void NotifyMessageStateChanged()
     {
         OnPropertyChanged(nameof(ShowMessageEmptyState));
+        OnPropertyChanged(nameof(ShowConversationLoadingState));
         OnPropertyChanged(nameof(MessageEmptyStateTitle));
         OnPropertyChanged(nameof(MessageEmptyStateText));
         OnPropertyChanged(nameof(ComposerPlaceholderText));
@@ -1107,6 +1262,39 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         {
             Messages.Add(item);
         }
+
+        if (SelectedConversation is not null)
+        {
+            _messageCache[SelectedConversation.ConversationId] = CloneMessages(ordered);
+        }
+    }
+
+    private void ReplaceMessages(IEnumerable<MessageRowViewModel> items)
+    {
+        Messages.Clear();
+        foreach (var item in items)
+        {
+            Messages.Add(CloneMessage(item));
+        }
+    }
+
+    private static List<MessageRowViewModel> CloneMessages(IEnumerable<MessageRowViewModel> items) =>
+        items.Select(CloneMessage).ToList();
+
+    private static MessageRowViewModel CloneMessage(MessageRowViewModel item)
+    {
+        return new MessageRowViewModel
+        {
+            MessageId = item.MessageId,
+            ClientMessageId = item.ClientMessageId,
+            Text = item.Text,
+            SenderName = item.SenderName,
+            MetaText = item.MetaText,
+            IsMine = item.IsMine,
+            IsPending = item.IsPending,
+            IsFailed = item.IsFailed,
+            ServerSequence = item.ServerSequence
+        };
     }
 
     private void ReorderConversations(string? selectedConversationId)
@@ -1130,7 +1318,10 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         IsCompactDensity = true;
         IsInspectorVisible = false;
         IsConversationPaneCollapsed = false;
-        ConversationPaneWidthValue = 348;
+        ConversationPaneWidthValue = DefaultConversationPaneWidth;
+        WindowWidth = null;
+        WindowHeight = null;
+        IsWindowMaximized = false;
         StatusLine = "초기화";
     }
 
@@ -1139,7 +1330,10 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         IsCompactDensity = layout.IsCompactDensity;
         IsInspectorVisible = layout.IsInspectorVisible;
         IsConversationPaneCollapsed = layout.IsConversationPaneCollapsed;
-        ConversationPaneWidthValue = Math.Clamp(layout.ConversationPaneWidth, 280, 480);
+        ConversationPaneWidthValue = Math.Clamp(layout.ConversationPaneWidth, MinConversationPaneWidth, MaxConversationPaneWidth);
+        WindowWidth = layout.WindowWidth;
+        WindowHeight = layout.WindowHeight;
+        IsWindowMaximized = layout.IsWindowMaximized;
     }
 
     private Task PersistWorkspaceLayoutAsync()
@@ -1148,7 +1342,10 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
             IsCompactDensity,
             IsInspectorVisible,
             IsConversationPaneCollapsed,
-            ConversationPaneWidthValue));
+            ConversationPaneWidthValue,
+            WindowWidth,
+            WindowHeight,
+            IsWindowMaximized));
     }
 
     public async ValueTask DisposeAsync()

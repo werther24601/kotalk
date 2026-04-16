@@ -5,11 +5,22 @@ import { buildBrowserWsUrl, parseRealtimeEvent } from './lib/realtime'
 import {
   clearConversationDraft,
   clearConversationDrafts,
+  clearConversationFollowUps,
+  clearRecentConversationIds,
+  clearRecentSearchQueries,
+  clearSavedInviteCode,
   clearStoredSession,
   getInstallId,
   readConversationDraft,
+  readConversationFollowUps,
+  readRecentConversationIds,
+  readRecentSearchQueries,
+  readSavedInviteCode,
   readStoredSession,
+  pushRecentConversationId,
+  pushRecentSearchQuery,
   writeConversationDraft,
+  writeConversationFollowUp,
   writeSavedInviteCode,
   writeStoredSession,
 } from './lib/storage'
@@ -27,14 +38,18 @@ type ConnectionState = 'idle' | 'connecting' | 'connected' | 'fallback'
 type ConversationFilter = 'all' | 'unread' | 'pinned'
 type MobileView = 'list' | 'chat'
 type BottomDestination = 'inbox' | 'search' | 'saved' | 'me'
+type FollowUpBucket = 'today' | 'later' | 'done'
+type SearchScope = 'all' | 'messages' | 'links' | 'people' | 'conversations'
 type SearchResultItem = {
   key: string
-  kind: 'conversation' | 'message'
+  kind: 'conversation' | 'message' | 'link' | 'person'
   conversationId: string
+  messageId?: string
   title: string
   excerpt: string
   meta: string
   timestamp: string
+  accent?: string
 }
 type IconName =
   | 'mark'
@@ -53,7 +68,13 @@ type IconName =
   | 'group'
 
 const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? ''
-const APP_VERSION = 'web-0.1.0-alpha.6'
+const DEFAULT_PUBLIC_ALPHA_KEY = 'ALPHA-OPEN-2026'
+const APP_VERSION = 'web-0.1.0-alpha.11'
+const FOLLOW_UP_META: Record<FollowUpBucket, { label: string; icon: IconName }> = {
+  today: { label: '오늘', icon: 'spark' },
+  later: { label: '나중', icon: 'clock' },
+  done: { label: '완료', icon: 'check' },
+}
 
 const CONNECTION_LABEL: Record<ConnectionState, string> = {
   idle: '준비 중',
@@ -210,9 +231,41 @@ function createClientId(): string {
     : `client-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`
 }
 
+function readBootstrapInviteCode(): string {
+  const params = new URLSearchParams(window.location.search)
+  const fromQuery = (params.get('invite') ?? params.get('key') ?? '').trim().toUpperCase()
+  if (fromQuery) {
+    return fromQuery
+  }
+
+  return readSavedInviteCode().trim().toUpperCase() || DEFAULT_PUBLIC_ALPHA_KEY
+}
+
 function getDefaultDeviceName(): string {
   const platform = /android/i.test(window.navigator.userAgent) ? 'Android' : 'Mobile Web'
   return `${platform} 브라우저`
+}
+
+function isFollowUpBucket(value: string | null | undefined): value is FollowUpBucket {
+  return value === 'today' || value === 'later' || value === 'done'
+}
+
+function dedupeStrings(values: string[]): string[] {
+  return [...new Set(values.filter((value) => value.trim().length > 0))]
+}
+
+function extractUrls(value: string): string[] {
+  const matches = value.match(/https?:\/\/[^\s)]+/gi)
+  return matches ? dedupeStrings(matches.map((item) => item.trim())) : []
+}
+
+function formatLinkLabel(url: string): string {
+  try {
+    const parsed = new URL(url)
+    return parsed.hostname.replace(/^www\./i, '')
+  } catch {
+    return url
+  }
 }
 
 function Icon({ name }: { name: IconName }) {
@@ -314,10 +367,22 @@ function Icon({ name }: { name: IconName }) {
 
 function App() {
   const initialSession = useMemo(() => readStoredSession(), [])
+  const initialInviteCode = useMemo(() => readBootstrapInviteCode(), [])
+  const initialFollowUpMap = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(readConversationFollowUps()).filter((entry): entry is [string, FollowUpBucket] =>
+          isFollowUpBucket(entry[1]),
+        ),
+      ),
+    [],
+  )
+  const initialRecentConversationIds = useMemo(() => readRecentConversationIds(), [])
+  const initialRecentSearchQueries = useMemo(() => readRecentSearchQueries(), [])
   const [storedSession, setStoredSession] = useState<StoredSession | null>(initialSession)
   const [apiBaseUrl, setApiBaseUrl] = useState(initialSession?.apiBaseUrl ?? DEFAULT_API_BASE_URL)
   const [displayName, setDisplayName] = useState(initialSession?.bootstrap.me.displayName ?? '')
-  const [inviteCode, setInviteCode] = useState('')
+  const [inviteCode, setInviteCode] = useState(initialInviteCode)
   const [bootstrap, setBootstrap] = useState<BootstrapResponse | null>(initialSession?.bootstrap ?? null)
   const [conversations, setConversations] = useState<ConversationSummaryDto[]>(
     sortConversations(initialSession?.bootstrap.conversations.items ?? []),
@@ -338,9 +403,15 @@ function App() {
   const [composerText, setComposerText] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchScope, setSearchScope] = useState<SearchScope>('all')
   const [refreshTick, setRefreshTick] = useState(0)
+  const [followUpMap, setFollowUpMap] = useState<Record<string, FollowUpBucket>>(initialFollowUpMap)
+  const [recentConversationIds, setRecentConversationIds] = useState<string[]>(initialRecentConversationIds)
+  const [recentSearchQueries, setRecentSearchQueries] = useState<string[]>(initialRecentSearchQueries)
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null)
   const storedSessionRef = useRef(storedSession)
   const refreshSessionPromiseRef = useRef<Promise<StoredSession> | null>(null)
+  const prefetchingConversationIdsRef = useRef<Set<string>>(new Set())
   const pendingReadCursorRef = useRef<Record<string, number>>({})
   const pendingAutoScrollRef = useRef(true)
   const messageStreamRef = useRef<HTMLDivElement | null>(null)
@@ -380,11 +451,15 @@ function App() {
       return {
         conversations: [] as SearchResultItem[],
         messages: [] as SearchResultItem[],
+        links: [] as SearchResultItem[],
+        people: [] as SearchResultItem[],
       }
     }
 
     const conversationMatches: SearchResultItem[] = []
     const messageMatches: SearchResultItem[] = []
+    const linkMatches: SearchResultItem[] = []
+    const peopleMatches = new Map<string, SearchResultItem>()
 
     for (const conversation of conversations) {
       const matchMeta: string[] = []
@@ -412,7 +487,42 @@ function App() {
 
       const loadedMessages = messagesByConversation[conversation.conversationId] ?? []
       for (const message of loadedMessages) {
+        const senderMatches = message.sender.displayName.toLocaleLowerCase('ko-KR').includes(query)
+        if (senderMatches) {
+          const existing = peopleMatches.get(message.sender.userId)
+          if (!existing || new Date(message.createdAt).getTime() > new Date(existing.timestamp).getTime()) {
+            peopleMatches.set(message.sender.userId, {
+              key: `person-${message.sender.userId}`,
+              kind: 'person',
+              conversationId: conversation.conversationId,
+              messageId: message.messageId,
+              title: message.sender.displayName,
+              excerpt: conversation.title,
+              meta: '보낸 사람',
+              timestamp: message.createdAt,
+              accent: conversation.title,
+            })
+          }
+        }
+
         if (!message.text.toLocaleLowerCase('ko-KR').includes(query)) {
+          for (const url of extractUrls(message.text)) {
+            if (!url.toLocaleLowerCase('ko-KR').includes(query) && !formatLinkLabel(url).toLocaleLowerCase('ko-KR').includes(query)) {
+              continue
+            }
+
+            linkMatches.push({
+              key: `link-${message.messageId}-${url}`,
+              kind: 'link',
+              conversationId: conversation.conversationId,
+              messageId: message.messageId,
+              title: formatLinkLabel(url),
+              excerpt: message.text,
+              meta: conversation.title,
+              timestamp: message.createdAt,
+              accent: url,
+            })
+          }
           continue
         }
 
@@ -420,21 +530,44 @@ function App() {
           key: `message-${message.messageId}`,
           kind: 'message',
           conversationId: conversation.conversationId,
+          messageId: message.messageId,
           title: conversation.title,
           excerpt: message.text,
           meta: message.isMine ? '내 메시지' : message.sender.displayName,
           timestamp: message.createdAt,
         })
+
+        for (const url of extractUrls(message.text)) {
+          linkMatches.push({
+            key: `link-${message.messageId}-${url}`,
+            kind: 'link',
+            conversationId: conversation.conversationId,
+            messageId: message.messageId,
+            title: formatLinkLabel(url),
+            excerpt: message.text,
+            meta: conversation.title,
+            timestamp: message.createdAt,
+            accent: url,
+          })
+        }
       }
     }
 
+    conversationMatches.sort((left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime())
     messageMatches.sort((left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime())
+    linkMatches.sort((left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime())
+    const peopleItems = [...peopleMatches.values()].sort(
+      (left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime(),
+    )
 
+    const include = (scope: SearchScope, section: Exclude<SearchScope, 'all'>) => scope === 'all' || scope === section
     return {
-      conversations: conversationMatches.slice(0, 8),
-      messages: messageMatches.slice(0, 8),
+      conversations: include(searchScope, 'conversations') ? conversationMatches.slice(0, 8) : [],
+      messages: include(searchScope, 'messages') ? messageMatches.slice(0, 8) : [],
+      links: include(searchScope, 'links') ? linkMatches.slice(0, 8) : [],
+      people: include(searchScope, 'people') ? peopleItems.slice(0, 8) : [],
     }
-  }, [conversations, messagesByConversation, normalizedSearchQuery])
+  }, [conversations, messagesByConversation, normalizedSearchQuery, searchScope])
   const replyNeededConversations = useMemo(
     () => conversations.filter((conversation) => conversation.unreadCount > 0).slice(0, 4),
     [conversations],
@@ -446,6 +579,25 @@ function App() {
   const recentConversations = useMemo(
     () => conversations.slice(0, 4),
     [conversations],
+  )
+  const recentWorkConversations = useMemo(() => {
+    const orderedFromVisits = recentConversationIds
+      .map((conversationId) => conversations.find((item) => item.conversationId === conversationId) ?? null)
+      .filter((item): item is ConversationSummaryDto => item !== null)
+
+    return dedupeConversationsById([...orderedFromVisits, ...recentConversations]).slice(0, 4)
+  }, [conversations, recentConversationIds, recentConversations])
+  const todayQueue = useMemo(
+    () => conversations.filter((conversation) => followUpMap[conversation.conversationId] === 'today'),
+    [conversations, followUpMap],
+  )
+  const laterQueue = useMemo(
+    () => conversations.filter((conversation) => followUpMap[conversation.conversationId] === 'later'),
+    [conversations, followUpMap],
+  )
+  const doneQueue = useMemo(
+    () => conversations.filter((conversation) => followUpMap[conversation.conversationId] === 'done'),
+    [conversations, followUpMap],
   )
   const savedReplyQueue = replyNeededConversations
   const savedPinnedQueue = useMemo(
@@ -462,10 +614,56 @@ function App() {
     [pinnedConversations, recentConversations, replyNeededConversations],
   )
   const savedConversations = useMemo(
-    () => dedupeConversationsById([...savedReplyQueue, ...savedPinnedQueue, ...savedRecentQueue]),
-    [savedPinnedQueue, savedRecentQueue, savedReplyQueue],
+    () => dedupeConversationsById([...todayQueue, ...laterQueue, ...doneQueue, ...savedReplyQueue, ...savedPinnedQueue, ...savedRecentQueue]),
+    [doneQueue, laterQueue, savedPinnedQueue, savedRecentQueue, savedReplyQueue, todayQueue],
   )
-  const searchResultTotal = searchResults.conversations.length + searchResults.messages.length
+  const discoveryReplyQueue = useMemo(
+    () => replyNeededConversations.filter((conversation) => !recentWorkConversations.some((item) => item.conversationId === conversation.conversationId)),
+    [recentWorkConversations, replyNeededConversations],
+  )
+  const discoveryLaterQueue = useMemo(
+    () => laterQueue.filter(
+      (conversation) =>
+        !recentWorkConversations.some((item) => item.conversationId === conversation.conversationId) &&
+        !replyNeededConversations.some((item) => item.conversationId === conversation.conversationId),
+    ),
+    [laterQueue, recentWorkConversations, replyNeededConversations],
+  )
+  const savedReplyDisplayQueue = useMemo(
+    () => savedReplyQueue.filter(
+      (conversation) =>
+        !todayQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !laterQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !doneQueue.some((item) => item.conversationId === conversation.conversationId),
+    ),
+    [doneQueue, laterQueue, savedReplyQueue, todayQueue],
+  )
+  const savedPinnedDisplayQueue = useMemo(
+    () => savedPinnedQueue.filter(
+      (conversation) =>
+        !todayQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !laterQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !doneQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !savedReplyDisplayQueue.some((item) => item.conversationId === conversation.conversationId),
+    ),
+    [doneQueue, laterQueue, savedPinnedQueue, savedReplyDisplayQueue, todayQueue],
+  )
+  const savedRecentDisplayQueue = useMemo(
+    () => savedRecentQueue.filter(
+      (conversation) =>
+        !todayQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !laterQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !doneQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !savedReplyDisplayQueue.some((item) => item.conversationId === conversation.conversationId) &&
+        !savedPinnedDisplayQueue.some((item) => item.conversationId === conversation.conversationId),
+    ),
+    [doneQueue, laterQueue, savedPinnedDisplayQueue, savedRecentQueue, savedReplyDisplayQueue, todayQueue],
+  )
+  const searchResultTotal =
+    searchResults.conversations.length +
+    searchResults.messages.length +
+    searchResults.links.length +
+    searchResults.people.length
   const primaryResumeConversation = selectedConversation ?? conversations[0] ?? null
 
   const persistSession = useCallback((nextSession: StoredSession) => {
@@ -533,6 +731,7 @@ function App() {
     setComposerText(readConversationDraft(conversationId))
     pendingAutoScrollRef.current = true
     setSelectedConversationId(conversationId)
+    setRecentConversationIds(pushRecentConversationId(conversationId))
     if (nextMobileView) {
       setMobileView(nextMobileView)
     }
@@ -541,6 +740,21 @@ function App() {
   const openDestination = useCallback((nextDestination: BottomDestination) => {
     setBottomDestination(nextDestination)
     setMobileView('list')
+  }, [])
+
+  const setConversationFollowUpBucket = useCallback((conversationId: string, nextBucket: FollowUpBucket) => {
+    setFollowUpMap((current) => {
+      const resolvedBucket = current[conversationId] === nextBucket ? null : nextBucket
+      const next: Record<string, FollowUpBucket> = { ...current }
+      if (resolvedBucket) {
+        next[conversationId] = resolvedBucket
+      } else {
+        delete next[conversationId]
+      }
+
+      writeConversationFollowUp(conversationId, resolvedBucket)
+      return next
+    })
   }, [])
 
   const handleReconnect = useCallback(() => {
@@ -580,6 +794,18 @@ function App() {
   }, [bottomDestination, mobileView])
 
   useEffect(() => {
+    if (!normalizedSearchQuery || searchResultTotal === 0) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      setRecentSearchQueries(pushRecentSearchQuery(normalizedSearchQuery))
+    }, 700)
+
+    return () => window.clearTimeout(timer)
+  }, [normalizedSearchQuery, searchResultTotal])
+
+  useEffect(() => {
     if (selectedConversationId && !conversations.some((item) => item.conversationId === selectedConversationId)) {
       const fallbackConversationId = conversations[0]?.conversationId ?? null
       if (fallbackConversationId) {
@@ -606,6 +832,30 @@ function App() {
 
     pendingAutoScrollRef.current = false
   }, [selectedConversationId, selectedMessages])
+
+  useEffect(() => {
+    if (!highlightedMessageId || !selectedConversationId || selectedMessages.length === 0) {
+      return
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      const target = messageStreamRef.current?.querySelector<HTMLElement>(`[data-message-id="${highlightedMessageId}"]`)
+      if (!target) {
+        return
+      }
+
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    })
+
+    const timer = window.setTimeout(() => {
+      setHighlightedMessageId((current) => (current === highlightedMessageId ? null : current))
+    }, 2600)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(timer)
+    }
+  }, [highlightedMessageId, selectedConversationId, selectedMessages])
 
   useEffect(() => {
     if (!accessToken) {
@@ -808,6 +1058,80 @@ function App() {
   }, [accessToken, messagesByConversation, selectedConversationId, storedSession, withRecoveredSession])
 
   useEffect(() => {
+    if (!accessToken || !normalizedSearchQuery) {
+      return
+    }
+
+    const prioritizedConversationIds = dedupeStrings([
+      ...recentWorkConversations.map((conversation) => conversation.conversationId),
+      ...replyNeededConversations.map((conversation) => conversation.conversationId),
+      ...todayQueue.map((conversation) => conversation.conversationId),
+      ...laterQueue.map((conversation) => conversation.conversationId),
+      ...conversations.map((conversation) => conversation.conversationId),
+    ])
+
+    const pendingConversationIds = prioritizedConversationIds
+      .filter((conversationId) => !messagesByConversation[conversationId])
+      .slice(0, 12)
+
+    if (pendingConversationIds.length === 0) {
+      return
+    }
+
+    let disposed = false
+
+    const prefetch = async () => {
+      for (const conversationId of pendingConversationIds) {
+        if (disposed) {
+          return
+        }
+
+        if (prefetchingConversationIdsRef.current.has(conversationId)) {
+          continue
+        }
+
+        prefetchingConversationIdsRef.current.add(conversationId)
+        try {
+          const { result: response } = await withRecoveredSession((session) =>
+            getMessages(session.apiBaseUrl, session.tokens.accessToken, conversationId),
+          )
+
+          if (disposed) {
+            return
+          }
+
+          setMessagesByConversation((current) => ({
+            ...current,
+            [conversationId]: mergeMessages(current[conversationId], response.items),
+          }))
+        } catch {
+          // Search prefetch is best-effort only.
+        } finally {
+          prefetchingConversationIdsRef.current.delete(conversationId)
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, 120))
+      }
+    }
+
+    void prefetch()
+
+    return () => {
+      disposed = true
+    }
+  }, [
+    accessToken,
+    conversations,
+    laterQueue,
+    messagesByConversation,
+    normalizedSearchQuery,
+    recentWorkConversations,
+    replyNeededConversations,
+    todayQueue,
+    withRecoveredSession,
+  ])
+
+  useEffect(() => {
     if (!accessToken || !selectedConversation || selectedMessages.length === 0) {
       return
     }
@@ -876,7 +1200,7 @@ function App() {
     try {
       const response: RegisterAlphaQuickResponse = await registerAlphaQuick(apiBaseUrl, {
         displayName: displayName.trim(),
-        inviteCode: inviteCode.trim(),
+        inviteCode: inviteCode.trim() || DEFAULT_PUBLIC_ALPHA_KEY,
         device: {
           installId: getInstallId(),
           platform: 'web-mobile',
@@ -892,7 +1216,12 @@ function App() {
         savedAt: new Date().toISOString(),
       }
 
-      writeSavedInviteCode(inviteCode.trim())
+      const resolvedInviteCode = inviteCode.trim() || DEFAULT_PUBLIC_ALPHA_KEY
+      if (resolvedInviteCode === DEFAULT_PUBLIC_ALPHA_KEY) {
+        clearSavedInviteCode()
+      } else {
+        writeSavedInviteCode(resolvedInviteCode)
+      }
       persistSession(nextSession)
       const firstConversationId = response.bootstrap.conversations.items[0]?.conversationId ?? null
       if (firstConversationId) {
@@ -958,6 +1287,7 @@ function App() {
     }
 
     clearStoredSession()
+    clearSavedInviteCode()
     setStoredSession(null)
     setBootstrap(null)
     setConversations([])
@@ -968,6 +1298,12 @@ function App() {
     setBottomDestination('inbox')
     setMobileView('list')
     clearConversationDrafts()
+    clearConversationFollowUps()
+    clearRecentConversationIds()
+    clearRecentSearchQueries()
+    setFollowUpMap({})
+    setRecentConversationIds([])
+    setRecentSearchQueries([])
     setStatusMessage('세션을 정리했습니다.')
   }
 
@@ -1008,9 +1344,20 @@ function App() {
     },
   }
   const activeDestinationMeta = destinationMeta[bottomDestination]
+  const renderFollowUpBadge = (bucket: FollowUpBucket) => {
+    const meta = FOLLOW_UP_META[bucket]
+
+    return (
+      <span className={`queue-badge queue-badge--${bucket}`} title={meta.label}>
+        <Icon name={meta.icon} />
+      </span>
+    )
+  }
+
   const renderConversationRows = (items: ConversationSummaryDto[]) =>
     items.map((conversation) => {
       const active = conversation.conversationId === selectedConversationId
+      const followUpBucket = followUpMap[conversation.conversationId]
 
       return (
         <button
@@ -1032,6 +1379,7 @@ function App() {
             <div className="conversation-row__meta">
               <span>{conversation.lastMessage?.text ?? conversation.subtitle}</span>
               <div className="conversation-row__tail">
+                {followUpBucket ? renderFollowUpBadge(followUpBucket) : null}
                 {conversation.isPinned ? <i className="row-pin" aria-hidden="true" /> : null}
                 {conversation.unreadCount > 0 ? <em>{conversation.unreadCount}</em> : null}
               </div>
@@ -1041,13 +1389,39 @@ function App() {
       )
     })
 
+  const renderRecentWorkStrip = () =>
+    recentWorkConversations.length > 0 ? (
+      <div className="recent-work-strip" aria-label="최근 작업">
+        {recentWorkConversations.map((conversation) => {
+          const followUpBucket = followUpMap[conversation.conversationId]
+
+          return (
+            <button
+              key={conversation.conversationId}
+              className="recent-work-card"
+              type="button"
+              onClick={() => selectConversation(conversation.conversationId, 'chat')}
+            >
+              <div className="avatar avatar--compact">{getConversationInitials(conversation.title)}</div>
+              <div className="recent-work-card__body">
+                <strong>{conversation.title}</strong>
+                <span>{conversation.unreadCount > 0 ? `안읽음 ${conversation.unreadCount}` : '최근 열람'}</span>
+              </div>
+              {followUpBucket ? renderFollowUpBadge(followUpBucket) : null}
+            </button>
+          )
+        })}
+      </div>
+    ) : null
+
   const renderSearchResultRows = (items: SearchResultItem[]) =>
     items.map((item) => (
       <button
         key={item.key}
-        className="search-result"
+        className={`search-result search-result--${item.kind}`}
         type="button"
         onClick={() => {
+          setHighlightedMessageId(item.kind === 'conversation' ? null : item.messageId ?? null)
           selectConversation(item.conversationId, 'chat')
           setBottomDestination('inbox')
         }}
@@ -1058,6 +1432,7 @@ function App() {
         </div>
         <p>{item.excerpt}</p>
         <span>{item.meta}</span>
+        {item.accent ? <small>{item.accent}</small> : null}
       </button>
     ))
 
@@ -1091,31 +1466,31 @@ function App() {
                 />
               </label>
 
-              <label className="field">
-                <input
-                  aria-label="참여 키"
-                  autoCapitalize="characters"
-                  placeholder="참여 키"
-                  required
-                  value={inviteCode}
-                  onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
-                />
-              </label>
-
               <button className="text-action" type="button" onClick={() => setShowAdvanced((value) => !value)}>
-                {showAdvanced ? '기본 보기' : '고급'}
+                {showAdvanced ? '옵션 닫기' : '옵션'}
               </button>
 
               {showAdvanced ? (
-                <label className="field">
-                  <input
-                    aria-label="서버 주소"
-                    inputMode="url"
-                    placeholder="서버 주소"
-                    value={apiBaseUrl}
-                    onChange={(event) => setApiBaseUrl(event.target.value)}
-                  />
-                </label>
+                <>
+                  <label className="field">
+                    <input
+                      aria-label="참여 키"
+                      autoCapitalize="characters"
+                      placeholder="참여 키"
+                      value={inviteCode}
+                      onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
+                    />
+                  </label>
+                  <label className="field">
+                    <input
+                      aria-label="서버 주소"
+                      inputMode="url"
+                      placeholder="서버 주소"
+                      value={apiBaseUrl}
+                      onChange={(event) => setApiBaseUrl(event.target.value)}
+                    />
+                  </label>
+                </>
               ) : null}
 
               <button className="primary-button" disabled={registering} type="submit">
@@ -1238,6 +1613,8 @@ function App() {
                   </div>
                 </div>
 
+                {renderRecentWorkStrip()}
+
                 <div className="conversation-list">
                   {bootstrapping ? <p className="empty-state">동기화 중</p> : null}
                   {!bootstrapping && conversations.length === 0 ? (
@@ -1287,6 +1664,41 @@ function App() {
 
                 <div className="toolbar-strip toolbar-strip--utility" aria-label="검색 빠른 이동">
                   <button
+                    className={`summary-chip ${searchScope === 'all' ? 'summary-chip--active' : ''}`}
+                    type="button"
+                    onClick={() => setSearchScope('all')}
+                  >
+                    전체
+                  </button>
+                  <button
+                    className={`summary-chip ${searchScope === 'messages' ? 'summary-chip--active' : ''}`}
+                    type="button"
+                    onClick={() => setSearchScope('messages')}
+                  >
+                    메시지
+                  </button>
+                  <button
+                    className={`summary-chip ${searchScope === 'links' ? 'summary-chip--active' : ''}`}
+                    type="button"
+                    onClick={() => setSearchScope('links')}
+                  >
+                    링크
+                  </button>
+                  <button
+                    className={`summary-chip ${searchScope === 'people' ? 'summary-chip--active' : ''}`}
+                    type="button"
+                    onClick={() => setSearchScope('people')}
+                  >
+                    사람
+                  </button>
+                  <button
+                    className={`summary-chip ${searchScope === 'conversations' ? 'summary-chip--active' : ''}`}
+                    type="button"
+                    onClick={() => setSearchScope('conversations')}
+                  >
+                    방
+                  </button>
+                  <button
                     className="icon-button icon-button--soft"
                     type="button"
                     aria-label="최근 대화"
@@ -1326,31 +1738,51 @@ function App() {
                 <div className="conversation-list">
                   {!normalizedSearchQuery ? (
                     <div className="search-results search-results--discovery">
-                      {recentConversations.length > 0 ? (
+                      {recentSearchQueries.length > 0 ? (
                         <section className="saved-section">
                           <div className="saved-section__header">
-                            <strong>최근</strong>
-                            <span>{recentConversations.length}개</span>
+                            <strong>최근 검색</strong>
+                            <span>{recentSearchQueries.length}개</span>
                           </div>
-                          <div className="saved-section__body">{renderConversationRows(recentConversations)}</div>
+                          <div className="saved-section__body search-history">
+                            {recentSearchQueries.map((item) => (
+                              <button
+                                key={item}
+                                className="summary-chip"
+                                type="button"
+                                onClick={() => setSearchQuery(item)}
+                              >
+                                {item}
+                              </button>
+                            ))}
+                          </div>
                         </section>
                       ) : null}
-                      {replyNeededConversations.length > 0 ? (
+                      {recentWorkConversations.length > 0 ? (
+                        <section className="saved-section">
+                          <div className="saved-section__header">
+                            <strong>최근 작업</strong>
+                            <span>{recentWorkConversations.length}개</span>
+                          </div>
+                          <div className="saved-section__body">{renderConversationRows(recentWorkConversations)}</div>
+                        </section>
+                      ) : null}
+                      {discoveryReplyQueue.length > 0 ? (
                         <section className="saved-section">
                           <div className="saved-section__header">
                             <strong>안읽음</strong>
-                            <span>{replyNeededConversations.length}개</span>
+                            <span>{discoveryReplyQueue.length}개</span>
                           </div>
-                          <div className="saved-section__body">{renderConversationRows(replyNeededConversations)}</div>
+                          <div className="saved-section__body">{renderConversationRows(discoveryReplyQueue)}</div>
                         </section>
                       ) : null}
-                      {pinnedConversations.length > 0 ? (
+                      {discoveryLaterQueue.length > 0 ? (
                         <section className="saved-section">
                           <div className="saved-section__header">
-                            <strong>고정</strong>
-                            <span>{pinnedConversations.length}개</span>
+                            <strong>나중</strong>
+                            <span>{discoveryLaterQueue.length}개</span>
                           </div>
-                          <div className="saved-section__body">{renderConversationRows(pinnedConversations)}</div>
+                          <div className="saved-section__body">{renderConversationRows(discoveryLaterQueue)}</div>
                         </section>
                       ) : null}
                     </div>
@@ -1360,6 +1792,18 @@ function App() {
                   ) : null}
                   {normalizedSearchQuery && searchResultTotal > 0 ? (
                     <div className="search-results search-results--matches">
+                      {searchResults.people.length > 0 ? (
+                        <section className="saved-section">
+                          <div className="saved-section__header">
+                            <strong>사람</strong>
+                            <span>{searchResults.people.length}개</span>
+                          </div>
+                          <div className="saved-section__body">
+                            {renderSearchResultRows(searchResults.people)}
+                          </div>
+                        </section>
+                      ) : null}
+
                       {searchResults.messages.length > 0 ? (
                         <section className="saved-section">
                           <div className="saved-section__header">
@@ -1368,6 +1812,18 @@ function App() {
                           </div>
                           <div className="saved-section__body">
                             {renderSearchResultRows(searchResults.messages)}
+                          </div>
+                        </section>
+                      ) : null}
+
+                      {searchResults.links.length > 0 ? (
+                        <section className="saved-section">
+                          <div className="saved-section__header">
+                            <strong>링크</strong>
+                            <span>{searchResults.links.length}개</span>
+                          </div>
+                          <div className="saved-section__body">
+                            {renderSearchResultRows(searchResults.links)}
                           </div>
                         </section>
                       ) : null}
@@ -1392,8 +1848,9 @@ function App() {
             {bottomDestination === 'saved' ? (
               <>
                 <div className="toolbar-strip toolbar-strip--utility" aria-label="보관함 요약">
-                  <span className="status-chip"><Icon name="spark" /> {savedReplyQueue.length}</span>
-                  <span className="status-chip"><Icon name="pin" /> {savedPinnedQueue.length}</span>
+                  <span className="status-chip"><Icon name="spark" /> {todayQueue.length}</span>
+                  <span className="status-chip"><Icon name="clock" /> {laterQueue.length}</span>
+                  <span className="status-chip"><Icon name="check" /> {doneQueue.length}</span>
                 </div>
 
                 <div className="conversation-list conversation-list--saved">
@@ -1401,33 +1858,63 @@ function App() {
                     <p className="empty-state empty-state--inline">지금 보관된 후속 작업이 없습니다.</p>
                   ) : null}
 
-                  {savedReplyQueue.length > 0 ? (
+                  {todayQueue.length > 0 ? (
+                    <section className="saved-section">
+                      <div className="saved-section__header">
+                        <strong>오늘</strong>
+                        <span>{todayQueue.length}개</span>
+                      </div>
+                      <div className="saved-section__body">{renderConversationRows(todayQueue)}</div>
+                    </section>
+                  ) : null}
+
+                  {laterQueue.length > 0 ? (
+                    <section className="saved-section">
+                      <div className="saved-section__header">
+                        <strong>나중</strong>
+                        <span>{laterQueue.length}개</span>
+                      </div>
+                      <div className="saved-section__body">{renderConversationRows(laterQueue)}</div>
+                    </section>
+                  ) : null}
+
+                  {doneQueue.length > 0 ? (
+                    <section className="saved-section">
+                      <div className="saved-section__header">
+                        <strong>완료</strong>
+                        <span>{doneQueue.length}개</span>
+                      </div>
+                      <div className="saved-section__body">{renderConversationRows(doneQueue)}</div>
+                    </section>
+                  ) : null}
+
+                  {savedReplyDisplayQueue.length > 0 ? (
                     <section className="saved-section">
                       <div className="saved-section__header">
                         <strong>답장</strong>
-                        <span>{savedReplyQueue.length}개</span>
+                        <span>{savedReplyDisplayQueue.length}개</span>
                       </div>
-                      <div className="saved-section__body">{renderConversationRows(savedReplyQueue)}</div>
+                      <div className="saved-section__body">{renderConversationRows(savedReplyDisplayQueue)}</div>
                     </section>
                   ) : null}
 
-                  {savedPinnedQueue.length > 0 ? (
+                  {savedPinnedDisplayQueue.length > 0 ? (
                     <section className="saved-section">
                       <div className="saved-section__header">
                         <strong>중요</strong>
-                        <span>{savedPinnedQueue.length}개</span>
+                        <span>{savedPinnedDisplayQueue.length}개</span>
                       </div>
-                      <div className="saved-section__body">{renderConversationRows(savedPinnedQueue)}</div>
+                      <div className="saved-section__body">{renderConversationRows(savedPinnedDisplayQueue)}</div>
                     </section>
                   ) : null}
 
-                  {savedRecentQueue.length > 0 ? (
+                  {savedRecentDisplayQueue.length > 0 ? (
                     <section className="saved-section">
                       <div className="saved-section__header">
                         <strong>최근</strong>
-                        <span>{savedRecentQueue.length}개</span>
+                        <span>{savedRecentDisplayQueue.length}개</span>
                       </div>
-                      <div className="saved-section__body">{renderConversationRows(savedRecentQueue)}</div>
+                      <div className="saved-section__body">{renderConversationRows(savedRecentDisplayQueue)}</div>
                     </section>
                   ) : null}
                 </div>
@@ -1498,7 +1985,36 @@ function App() {
                     </div>
                   </div>
 
-                  <span className="mini-pill">{CONNECTION_LABEL[connectionState]}</span>
+                  <div className="chat-appbar__actions">
+                    <button
+                      className={`icon-button icon-button--soft ${followUpMap[selectedConversation.conversationId] === 'today' ? 'icon-button--active' : ''}`}
+                      type="button"
+                      title="오늘"
+                      aria-label="오늘 후속작업으로 표시"
+                      onClick={() => setConversationFollowUpBucket(selectedConversation.conversationId, 'today')}
+                    >
+                      <Icon name="spark" />
+                    </button>
+                    <button
+                      className={`icon-button icon-button--soft ${followUpMap[selectedConversation.conversationId] === 'later' ? 'icon-button--active' : ''}`}
+                      type="button"
+                      title="나중"
+                      aria-label="나중 후속작업으로 표시"
+                      onClick={() => setConversationFollowUpBucket(selectedConversation.conversationId, 'later')}
+                    >
+                      <Icon name="clock" />
+                    </button>
+                    <button
+                      className={`icon-button icon-button--soft ${followUpMap[selectedConversation.conversationId] === 'done' ? 'icon-button--active' : ''}`}
+                      type="button"
+                      title="완료"
+                      aria-label="완료로 표시"
+                      onClick={() => setConversationFollowUpBucket(selectedConversation.conversationId, 'done')}
+                    >
+                      <Icon name="check" />
+                    </button>
+                    <span className="mini-pill">{CONNECTION_LABEL[connectionState]}</span>
+                  </div>
                 </header>
 
                 <div className="message-stream" ref={messageStreamRef}>
@@ -1537,7 +2053,8 @@ function App() {
                     return (
                       <article
                         key={message.messageId}
-                        className={`message-bubble ${message.isMine ? 'message-bubble--mine' : ''}`}
+                        data-message-id={message.messageId}
+                        className={`message-bubble ${message.isMine ? 'message-bubble--mine' : ''} ${highlightedMessageId === message.messageId ? 'message-bubble--highlight' : ''}`}
                       >
                         {showSender ? <p className="message-bubble__sender">{message.sender.displayName}</p> : null}
                         <div className="message-bubble__body">
