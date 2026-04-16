@@ -329,7 +329,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                     $"desktop-{Environment.MachineName.ToLowerInvariant()}",
                     "windows",
                     Environment.MachineName,
-                    "0.1.0-alpha.4"));
+                    "0.1.0-alpha.5"));
 
             var response = await _apiClient.RegisterAlphaQuickAsync(apiBaseUrl, request, CancellationToken.None);
             ApiBaseUrl = apiBaseUrl;

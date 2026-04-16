@@ -315,9 +315,9 @@ async function captureOnboarding(browser) {
     window.localStorage.clear()
   })
   await page.reload({ waitUntil: 'networkidle2' })
-  await page.screenshot({
+  const app = await page.waitForSelector('.onboarding')
+  await app.screenshot({
     path: path.join(outputDir, 'vstalk-web-onboarding.png'),
-    fullPage: false,
   })
   await page.close()
 }
@@ -327,9 +327,9 @@ async function captureConversationList(browser) {
   await installSessionMocks(page)
   await page.goto(baseUrl, { waitUntil: 'networkidle2' })
   await page.waitForSelector('.conversation-row')
-  await page.screenshot({
+  const app = await page.waitForSelector('.shell')
+  await app.screenshot({
     path: path.join(outputDir, 'vstalk-web-list.png'),
-    fullPage: false,
   })
   await page.close()
 }
@@ -341,9 +341,9 @@ async function captureConversation(browser) {
   await page.waitForSelector('.conversation-row')
   await page.click('.conversation-row')
   await page.waitForSelector('.message-bubble')
-  await page.screenshot({
+  const app = await page.waitForSelector('.shell')
+  await app.screenshot({
     path: path.join(outputDir, 'vstalk-web-chat.png'),
-    fullPage: false,
   })
   await page.close()
 }
@@ -355,9 +355,9 @@ async function captureSearch(browser) {
   await page.waitForSelector('.bottom-bar')
   await page.click('.bottom-bar .nav-button:nth-child(2)')
   await page.waitForSelector('.search-field')
-  await page.screenshot({
+  const app = await page.waitForSelector('.shell')
+  await app.screenshot({
     path: path.join(outputDir, 'vstalk-web-search.png'),
-    fullPage: false,
   })
   await page.close()
 }
@@ -369,9 +369,9 @@ async function captureSaved(browser) {
   await page.waitForSelector('.bottom-bar')
   await page.click('.bottom-bar .nav-button:nth-child(3)')
   await page.waitForSelector('.saved-section')
-  await page.screenshot({
+  const app = await page.waitForSelector('.shell')
+  await app.screenshot({
     path: path.join(outputDir, 'vstalk-web-saved.png'),
-    fullPage: false,
   })
   await page.close()
 }

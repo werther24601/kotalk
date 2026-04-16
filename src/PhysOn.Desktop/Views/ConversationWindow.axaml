@@ -7,55 +7,55 @@
         Height="748"
         MinWidth="340"
         MinHeight="520"
-        Background="#F3F4F6"
+        Background="#F7F3EE"
         Title="{Binding ConversationTitle}">
 
     <Window.Styles>
         <Style Selector="Border.surface">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.muted">
             <Setter Property="CornerRadius" Value="2" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#E8EAEE" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#ECE1D6" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.bubble">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="9,7" />
             <Setter Property="Margin" Value="0,0,0,6" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#E6D8CC" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
         <Style Selector="Border.bubble.mine">
-            <Setter Property="Background" Value="#EEF1F4" />
+            <Setter Property="Background" Value="#F0E5D8" />
             <Setter Property="HorizontalAlignment" Value="Right" />
         </Style>
         <Style Selector="Button.icon">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="8,6" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#D9DDE2" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#DCCFC4" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Button.primary">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="11,8" />
-            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Background" Value="#394350" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="TextBlock.caption">
             <Setter Property="FontSize" Value="11.5" />
-            <Setter Property="Foreground" Value="#69727D" />
+            <Setter Property="Foreground" Value="#82766D" />
         </Style>
         <Style Selector="TextBlock.body">
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Foreground" Value="#111418" />
+            <Setter Property="Foreground" Value="#20242B" />
         </Style>
     </Window.Styles>
 
@@ -67,14 +67,14 @@
                                VerticalAlignment="Center"
                                Text="{Binding ConversationGlyph}"
                                FontWeight="SemiBold"
-                               Foreground="#111418" />
+                               Foreground="#20242B" />
                 </Border>
 
                 <StackPanel Grid.Column="1" Spacing="2">
                     <TextBlock Text="{Binding ConversationTitle}"
                                FontSize="14.5"
                                FontWeight="SemiBold"
-                               Foreground="#111418"
+                               Foreground="#20242B"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding ConversationSubtitle}"
                                Classes="caption"
@@ -97,7 +97,7 @@
                 Padding="9"
                 IsVisible="{Binding HasErrorText}">
             <TextBlock Text="{Binding ErrorText}"
-                       Foreground="#C62828"
+                       Foreground="#C9573C"
                        Classes="caption"
                        TextWrapping="Wrap" />
         </Border>

@@ -4,7 +4,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>KoTalk</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\kotalk.ico</ApplicationIcon>
+    <Company>PHYSIA</Company>
+    <Authors>PHYSIA</Authors>
+    <Product>KoTalk</Product>
+    <Description>한국어 중심의 차분한 메시징 경험을 다시 설계하는 Windows-first 메신저</Description>
+    <AssemblyTitle>KoTalk</AssemblyTitle>
+    <AssemblyVersion>0.1.0.5</AssemblyVersion>
+    <FileVersion>0.1.0.5</FileVersion>
+    <Version>0.1.0-alpha.5</Version>
+    <InformationalVersion>0.1.0-alpha.5</InformationalVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 

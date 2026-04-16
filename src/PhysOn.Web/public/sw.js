@@ -1,5 +1,12 @@
-const CACHE_NAME = 'vs-talk-shell-v2';
-const SHELL = ['/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.svg', '/mask-icon.svg'];
+const CACHE_NAME = 'ko-talk-shell-v3';
+const SHELL = [
+  '/manifest.webmanifest',
+  '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+  '/favicon.ico',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));

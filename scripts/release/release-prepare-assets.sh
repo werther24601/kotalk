@@ -166,6 +166,8 @@ write_platform_version_json() {
   local body="$2"
   cat > "$path" <<EOF
 {
+  "productName": "KoTalk",
+  "publisher": "PHYSIA",
   "version": "$version",
   "channel": "$channel",
   "publishedAt": "$published_at",
@@ -202,6 +204,7 @@ if [[ -n "$windows_zip" ]]; then
   latest_hash_paths+=("windows/$windows_latest_name")
 
   windows_platform_body="$(cat <<EOF
+    "name": "KoTalk for Windows",
     "kind": "desktop",
     "arch": "x64",
     "latestUrl": "$download_base_url/windows/latest",
@@ -252,9 +255,10 @@ if [[ -n "$android_apk" ]]; then
   latest_hash_paths+=("android/$android_latest_name")
 
   android_platform_body="$(cat <<EOF
+    "name": "KoTalk for Android",
     "kind": "mobile",
     "arch": "universal",
-    "packageName": "kr.physia.vsmessenger",
+    "packageName": "kr.physia.kotalk",
     "minSdk": 26,
     "latestUrl": "$download_base_url/android/latest",
     "apkUrl": "$download_base_url/android/latest/$android_latest_name",
@@ -308,6 +312,8 @@ fi
 
 cat > "$release_root/version.json" <<EOF
 {
+  "productName": "KoTalk",
+  "publisher": "PHYSIA",
   "version": "$version",
   "channel": "$channel",
   "publishedAt": "$published_at",

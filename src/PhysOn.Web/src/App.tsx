@@ -53,7 +53,7 @@ type IconName =
   | 'group'
 
 const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? ''
-const APP_VERSION = 'web-0.1.0-alpha.4'
+const APP_VERSION = 'web-0.1.0-alpha.5'
 
 const CONNECTION_LABEL: Record<ConnectionState, string> = {
   idle: '준비 중',
@@ -220,7 +220,15 @@ function Icon({ name }: { name: IconName }) {
     case 'mark':
       return (
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 6.5a2.5 2.5 0 0 1 2.5-2.5h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H10l-3.5 3v-3H7.5A2.5 2.5 0 0 1 5 12.5z" />
+          <path
+            fill="#394350"
+            d="M4.2 7.1A1.2 1.2 0 0 1 5.4 5.9h8.4A1.2 1.2 0 0 1 15 7.1v5.8a1.2 1.2 0 0 1-1.2 1.2H10l-2.7 2.7v-2.7H5.4a1.2 1.2 0 0 1-1.2-1.2z"
+          />
+          <path
+            fill="#F05B2B"
+            d="M9.8 7.1A1.2 1.2 0 0 1 11 5.9h7.6a1.2 1.2 0 0 1 1.2 1.2v5.8a1.2 1.2 0 0 1-1.2 1.2h-1.1v2.2l-1.8-2.2H11a1.2 1.2 0 0 1-1.2-1.2z"
+          />
+          <path fill="#FFFFFF" d="M11.1 6.8h2L9.8 12l3.3 5.2h-2l-4-5.2z" />
         </svg>
       )
     case 'refresh':
@@ -1060,7 +1068,7 @@ function App() {
           <header className="onboarding__chrome">
             <div className="brand-lockup">
               <span className="brand-mark" aria-hidden="true">
-                <Icon name="mark" />
+                <img className="brand-mark__image" src="/vs-mark.svg" alt="" />
               </span>
               <div className="brand-lockup__text">
                 <strong>KoTalk</strong>
@@ -1159,7 +1167,7 @@ function App() {
             <header className="appbar">
               <div className="appbar__leading">
                 <span className="brand-mark brand-mark--small" aria-hidden="true">
-                  <Icon name="mark" />
+                  <img className="brand-mark__image" src="/vs-mark.svg" alt="" />
                 </span>
                 <div className="appbar__title">
                   <h2>{activeDestinationMeta.title}</h2>

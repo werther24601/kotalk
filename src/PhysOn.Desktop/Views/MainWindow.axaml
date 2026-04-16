@@ -14,7 +14,7 @@
         Height="900"
         MinWidth="980"
         MinHeight="640"
-        Background="#F3F4F6">
+        Background="#F7F3EE">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -24,112 +24,112 @@
         <Style Selector="Border.surface">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.surface-muted">
             <Setter Property="CornerRadius" Value="2" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#E8EAEE" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#ECE1D6" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.rail-surface">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.row-card">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#ECEFF3" />
+            <Setter Property="BorderBrush" Value="#ECE2D8" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.row-card.active">
-            <Setter Property="Background" Value="#F3F5F7" />
-            <Setter Property="BorderBrush" Value="#D7DCE3" />
+            <Setter Property="Background" Value="#F4ECE3" />
+            <Setter Property="BorderBrush" Value="#DCCABA" />
         </Style>
         <Style Selector="Border.inline-alert">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#D14B3F" />
+            <Setter Property="BorderBrush" Value="#C9573C" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,8" />
         </Style>
         <Style Selector="Border.status-chip">
             <Setter Property="CornerRadius" Value="2" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#E6D8CC" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="8,3" />
         </Style>
         <Style Selector="Border.unread-badge">
             <Setter Property="CornerRadius" Value="2" />
-            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Background" Value="#394350" />
             <Setter Property="Padding" Value="6,1" />
         </Style>
         <Style Selector="Border.message-bubble">
             <Setter Property="CornerRadius" Value="2" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#E6D8CC" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="MaxWidth" Value="560" />
             <Setter Property="Margin" Value="0,0,0,6" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
         <Style Selector="Border.message-bubble.mine">
-            <Setter Property="Background" Value="#EEF1F4" />
+            <Setter Property="Background" Value="#F0E5D8" />
             <Setter Property="HorizontalAlignment" Value="Right" />
         </Style>
         <Style Selector="Border.message-bubble.pending">
             <Setter Property="Opacity" Value="0.72" />
         </Style>
         <Style Selector="Border.message-bubble.failed">
-            <Setter Property="BorderBrush" Value="#C9392C" />
+            <Setter Property="BorderBrush" Value="#C9573C" />
         </Style>
         <Style Selector="TextBlock.display-title">
             <Setter Property="FontSize" Value="30" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#111418" />
+            <Setter Property="Foreground" Value="#20242B" />
         </Style>
         <Style Selector="TextBlock.section-title">
             <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#111418" />
+            <Setter Property="Foreground" Value="#20242B" />
         </Style>
         <Style Selector="TextBlock.body">
             <Setter Property="FontSize" Value="12.5" />
-            <Setter Property="Foreground" Value="#1D232B" />
+            <Setter Property="Foreground" Value="#2E3640" />
         </Style>
         <Style Selector="TextBlock.caption">
             <Setter Property="FontSize" Value="11.5" />
-            <Setter Property="Foreground" Value="#69727D" />
+            <Setter Property="Foreground" Value="#82766D" />
         </Style>
         <Style Selector="TextBlock.eyebrow">
             <Setter Property="FontSize" Value="10.5" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#69727D" />
+            <Setter Property="Foreground" Value="#8B7B6C" />
         </Style>
         <Style Selector="TextBox.input">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="11,8" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#D8DDE4" />
+            <Setter Property="BorderBrush" Value="#DCCFC4" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
         </Style>
         <Style Selector="TextBox.search-input">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="9,7" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
         </Style>
         <Style Selector="Button.primary-button">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="12,9" />
-            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Background" Value="#394350" />
             <Setter Property="Foreground" Value="#FFFFFF" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
@@ -137,8 +137,8 @@
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="10,8" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="Foreground" Value="#1E252C" />
-            <Setter Property="BorderBrush" Value="#D8DDE4" />
+            <Setter Property="Foreground" Value="#394350" />
+            <Setter Property="BorderBrush" Value="#DCCFC4" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Button.icon-button">
@@ -146,9 +146,9 @@
             <Setter Property="MinWidth" Value="30" />
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="8,0" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="Foreground" Value="#1E252C" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="Foreground" Value="#394350" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="12" />
         </Style>
@@ -162,16 +162,16 @@
         <Style Selector="Button.filter-button">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="9,5" />
-            <Setter Property="Background" Value="#F7F8FA" />
-            <Setter Property="Foreground" Value="#69727D" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="Background" Value="#FBF7F2" />
+            <Setter Property="Foreground" Value="#7F736A" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="12" />
         </Style>
         <Style Selector="Button.filter-button.selected">
-            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Background" Value="#394350" />
             <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#111418" />
+            <Setter Property="BorderBrush" Value="#394350" />
         </Style>
         <Style Selector="Button.rail-button">
             <Setter Property="Width" Value="38" />
@@ -179,15 +179,15 @@
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="Foreground" Value="#1E252C" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="Foreground" Value="#394350" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
         </Style>
         <Style Selector="Button.rail-button.active">
-            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Background" Value="#394350" />
             <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#111418" />
+            <Setter Property="BorderBrush" Value="#394350" />
         </Style>
         <Style Selector="Button.row-button">
             <Setter Property="Background" Value="Transparent" />
@@ -199,8 +199,8 @@
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="9,5" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="Foreground" Value="#4A5560" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="Foreground" Value="#7F736A" />
+            <Setter Property="BorderBrush" Value="#E8DDD2" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="11.5" />
         </Style>
@@ -215,13 +215,9 @@
                 <StackPanel Spacing="14">
                     <StackPanel Spacing="8">
                         <TextBlock Text="KO · TALK" Classes="eyebrow" />
-                        <Border Width="50" Height="50" Classes="surface-muted" HorizontalAlignment="Left">
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Text="KO"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="#111418" />
+                        <Border Width="50" Height="50" Classes="surface-muted" HorizontalAlignment="Left" Padding="7">
+                            <Image Source="avares://PhysOn.Desktop/Assets/kotalk-mark-128.png"
+                                   Stretch="Uniform" />
                         </Border>
                         <TextBlock Text="KoTalk" Classes="display-title" />
                     </StackPanel>
@@ -250,7 +246,7 @@
                     <Border Classes="inline-alert" IsVisible="{Binding HasErrorText}">
                         <TextBlock Text="{Binding ErrorText}"
                                    Classes="caption"
-                                   Foreground="#C9392C"
+                                   Foreground="#C9573C"
                                    TextWrapping="Wrap" />
                     </Border>
 
@@ -273,12 +269,9 @@
             <Border Grid.Column="0" Classes="rail-surface" Padding="8">
                 <Grid RowDefinitions="Auto,*,Auto">
                     <StackPanel Spacing="8">
-                        <Border Width="38" Height="38" Classes="surface-muted">
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Text="KO"
-                                       FontWeight="Bold"
-                                       Foreground="#111418" />
+                        <Border Width="38" Height="38" Classes="surface-muted" Padding="6">
+                            <Image Source="avares://PhysOn.Desktop/Assets/kotalk-mark-128.png"
+                                   Stretch="Uniform" />
                         </Border>
 
                         <Button Classes="rail-button active" ToolTip.Tip="받은함">
@@ -292,7 +285,7 @@
                                        VerticalAlignment="Center"
                                        Text="{Binding CurrentUserMonogram}"
                                        FontWeight="SemiBold"
-                                       Foreground="#1E252C" />
+                                       Foreground="#394350" />
                         </Border>
                         <Button Classes="rail-button"
                                 ToolTip.Tip="로그아웃"
@@ -397,7 +390,7 @@
                                                                    VerticalAlignment="Center"
                                                                    Text="{Binding AvatarText}"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#111418" />
+                                                                   Foreground="#20242B" />
                                                     </Border>
 
                                                     <TextBlock Grid.Column="1"
@@ -444,7 +437,7 @@
             <GridSplitter Grid.Column="2"
                           Width="6"
                           IsVisible="{Binding IsConversationPaneExpanded}"
-                          Background="#E5E7EB"
+                          Background="#E8DDD2"
                           ResizeDirection="Columns"
                           ShowsPreview="True" />
 
@@ -456,7 +449,7 @@
                                        VerticalAlignment="Center"
                                        Text="{Binding SelectedConversationGlyph}"
                                        FontWeight="SemiBold"
-                                       Foreground="#111418" />
+                                       Foreground="#20242B" />
                         </Border>
 
                         <StackPanel Grid.Column="1" Spacing="2">
@@ -503,7 +496,7 @@
                                 IsVisible="{Binding HasErrorText}">
                             <TextBlock Text="{Binding ErrorText}"
                                        Classes="caption"
-                                       Foreground="#C9392C"
+                                       Foreground="#C9573C"
                                        TextWrapping="Wrap" />
                         </Border>
 
@@ -526,7 +519,7 @@
                                                            IsVisible="{Binding ShowSenderName}" />
                                                 <TextBlock Text="{Binding Text}"
                                                            FontSize="13"
-                                                           Foreground="#111418"
+                                                           Foreground="#20242B"
                                                            TextWrapping="Wrap" />
                                                 <TextBlock Text="{Binding MetaText}" Classes="caption" />
                                             </StackPanel>

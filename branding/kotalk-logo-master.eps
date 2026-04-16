@@ -1,0 +1,54 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 0 0 1024 1024
+%%HiResBoundingBox: 0 0 1024 1024
+%%LanguageLevel: 2
+%%Pages: 1
+%%EndComments
+/roundrect {
+  /r exch def
+  /y2 exch def
+  /x2 exch def
+  /y exch def
+  /x exch def
+  newpath
+  x r add y moveto
+  x2 r sub y lineto
+  x2 r sub y r add r 270 360 arc
+  x2 y2 r sub lineto
+  x2 r sub y2 r sub r 0 90 arc
+  x r add y2 lineto
+  x r add y2 r sub r 90 180 arc
+  x y r add lineto
+  x r add y r add r 180 270 arc
+  closepath
+} def
+gsave
+0 1024 translate
+1 -1 scale
+0.223529 0.262745 0.313725 setrgbcolor
+218.00 312.00 584.00 602.00 22.00 roundrect fill
+newpath
+304.00 602.00 moveto
+304.00 736.00 lineto
+438.00 602.00 lineto
+closepath fill
+0.941176 0.356863 0.168627 setrgbcolor
+446.00 312.00 812.00 602.00 22.00 roundrect fill
+newpath
+668.00 602.00 moveto
+742.00 602.00 lineto
+742.00 694.00 lineto
+694.00 650.00 lineto
+closepath fill
+1.000000 1.000000 1.000000 setrgbcolor
+newpath
+490.00 328.00 moveto
+582.00 328.00 lineto
+446.00 457.00 lineto
+582.00 586.00 lineto
+490.00 586.00 lineto
+338.00 457.00 lineto
+closepath fill
+grestore
+showpage
+%%EOF

@@ -149,12 +149,8 @@ PY
       capture_window() {
         local window_id="$1"
         local target_path="$2"
-        local root_capture="${target_path%.*}-root.${target_path##*.}"
-        local geometry
-        read -r crop_x crop_y crop_w crop_h < <(wait_for_geometry "$window_id")
-        import -window root "$root_capture"
-        convert "$root_capture" -crop "${crop_w}x${crop_h}+${crop_x}+${crop_y}" +repage "$target_path"
-        rm -f "$root_capture"
+        wait_for_geometry "$window_id" >/dev/null
+        import -window "$window_id" "$target_path"
       }
 
       create_conversation_fallback() {

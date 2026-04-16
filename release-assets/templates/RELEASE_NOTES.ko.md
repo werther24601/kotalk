@@ -1,4 +1,4 @@
-# vs-messanger {{VERSION}}
+# KoTalk {{VERSION}}
 
 - 채널: `{{CHANNEL}}`
 - 게시 시각: `{{PUBLISHED_AT}}`
