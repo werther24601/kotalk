@@ -9,7 +9,7 @@
 - 릴리즈 번들용 스크린샷과 별개로, 저장소 안의 최신 기준 화면을 유지합니다.
 - 모바일 웹 스크린샷은 `scripts/ci/capture-vstalk-web-screenshots.cjs`로 다시 생성할 수 있습니다.
 - 캡처는 불필요한 바깥 여백 없이 앱 창 또는 앱 셸 자체만 정확히 담아야 합니다.
-- README, SHOWCASE, 릴리즈 페이지에 게시할 때는 실제 이미지 종횡비를 유지하는 `width/height` 기준으로 사용합니다.
+- README, SHOWCASE, 릴리즈 페이지에 게시할 때는 `height`를 강제하지 않고, 원본 종횡비가 유지되도록 `width`만 지정하거나 기본 크기를 그대로 사용합니다.
 - 현재 포함:
   - Windows 데스크톱 셸
   - Windows 온보딩/대화 화면
