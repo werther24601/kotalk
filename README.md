@@ -30,6 +30,7 @@
   <a href="PROJECT_STATUS.md">Project Status</a> ·
   <a href="SHOWCASE.md">Showcase</a> ·
   <a href="BACKGROUND.md">Background</a> ·
+  <a href="ALTERNATIVE_GAP.md">Alternative Gap</a> ·
   <a href="branding/BRAND_GUIDE.md">Brand Guide</a> ·
   <a href="FAQ.md">FAQ</a> ·
   <a href="RELEASING.md">Releases</a> ·
@@ -78,6 +79,12 @@ KoTalk는 단순히 새로운 메신저를 하나 더 만드는 시도가 아닙
 - PC 로그인과 메시지 전송 장애가 반복될 때 누적되는 불신
 
 KoTalk는 이 배경을 리스크 문구로 숨기지 않고, 왜 이 프로젝트가 필요한지 설명하는 핵심 맥락으로 다룹니다. 배경 요약은 [BACKGROUND.md](BACKGROUND.md), 더 긴 맥락은 [문서/14-project-background-and-market-context.md](문서/14-project-background-and-market-context.md)에 정리돼 있습니다.
+
+## Why Current Alternatives Still Leave A Gap
+
+국내에서 실제로 대안으로 거론되는 메신저는 이미 존재합니다. 하지만 공개적으로 확인되는 자료를 기준으로 보면, `한국어 중심 UX`, `기관·기업의 내부망 또는 자체 인프라 배포`, `탈중앙화 또는 벤더 락인 완화`, `개인보안`, `오픈소스와 커뮤니티 기반 투명성`을 한 번에 묶어 보여 주는 사례는 아직 보이지 않습니다.
+
+KoTalk는 바로 그 비어 있는 결합점을 목표로 둡니다. 이 항목은 기존 배경 설명의 보조 문장이 아니라, 프로젝트의 별도 문제 정의입니다. 자세한 비교와 근거는 [ALTERNATIVE_GAP.md](ALTERNATIVE_GAP.md)에서 따로 설명합니다.
 
 ## What Makes KoTalk Different
 
@@ -203,6 +210,7 @@ KoTalk의 현재 구조는 지나치게 복잡한 플랫폼보다, 작은 조각
 
 - [ROADMAP.md](ROADMAP.md)
 - [BUSINESS_MODEL.md](BUSINESS_MODEL.md)
+- [ALTERNATIVE_GAP.md](ALTERNATIVE_GAP.md)
 - [문서/01-product-strategy-and-mvp.md](문서/01-product-strategy-and-mvp.md)
 - [문서/18-white-material-compact-ui-system.md](문서/18-white-material-compact-ui-system.md)
 - [문서/22-work-communication-ux-playbook.md](문서/22-work-communication-ux-playbook.md)

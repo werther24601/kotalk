@@ -94,6 +94,7 @@ fi
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 release_root="$repo_root/release-assets/releases/$version"
 latest_root="$repo_root/release-assets/latest"
+download_root="$repo_root/release-assets/root"
 template_path="$repo_root/release-assets/templates/RELEASE_NOTES.ko.md"
 download_base_url="${DOWNLOAD_BASE_URL:-https://download-vstalk.phy.kr}"
 release_base_url="${RELEASE_BASE_URL:-}"
@@ -131,8 +132,8 @@ if [[ -e "$release_root" && "$force" != "true" ]]; then
   exit 1
 fi
 
-rm -rf "$release_root" "$latest_root"
-mkdir -p "$release_root/screenshots" "$latest_root/screenshots"
+rm -rf "$release_root" "$latest_root" "$download_root"
+mkdir -p "$release_root/screenshots" "$latest_root/screenshots" "$download_root"
 
 if [[ -n "$notes_path" ]]; then
   cp "$notes_path" "$release_root/RELEASE_NOTES.ko.md"
@@ -296,6 +297,145 @@ if (( ${#latest_hash_paths[@]} > 0 )); then
   )
 fi
 
+windows_landing_card=""
+if [[ -n "$windows_zip" ]]; then
+  windows_landing_card="$(cat <<EOF
+      <a class="card" href="/windows/latest">
+        <span class="eyebrow">Windows</span>
+        <strong>Latest Windows build</strong>
+        <span>ZIP package and SHA256 checksum</span>
+      </a>
+EOF
+)"
+fi
+
+android_landing_card=""
+if [[ -n "$android_apk" ]]; then
+  android_landing_card="$(cat <<EOF
+      <a class="card" href="/android/latest">
+        <span class="eyebrow">Android</span>
+        <strong>Latest Android build</strong>
+        <span>Universal APK and SHA256 checksum</span>
+      </a>
+EOF
+)"
+fi
+
+cat > "$download_root/index.html" <<EOF
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KoTalk Downloads</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f3ee;
+        --surface: #ffffff;
+        --surface-muted: #f1ebe4;
+        --border: #ddd1c4;
+        --text: #20242b;
+        --text-soft: #5f5a54;
+        --accent: #f05b2b;
+        --accent-soft: #394350;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 48px 24px 64px;
+      }
+      .hero {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 24px;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 34px;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+      }
+      p {
+        margin: 0;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-decoration: none;
+        color: inherit;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 18px;
+      }
+      .card:hover {
+        border-color: var(--accent);
+      }
+      .eyebrow {
+        color: var(--accent-soft);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+      .meta a {
+        color: var(--accent-soft);
+      }
+      @media (max-width: 640px) {
+        main { padding: 24px 16px 40px; }
+        h1 { font-size: 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>KoTalk Downloads</h1>
+        <p>KoTalk의 최신 배포 파일과 버전 메타데이터를 제공하는 공식 다운로드 표면입니다.</p>
+        <div class="grid">
+$windows_landing_card
+$android_landing_card
+          <a class="card" href="/latest/version.json">
+            <span class="eyebrow">Manifest</span>
+            <strong>Version manifest</strong>
+            <span>Current release metadata and asset URLs</span>
+          </a>
+        </div>
+        <div class="meta">
+          <p><strong>Version</strong><br>$version</p>
+          <p><strong>Channel</strong><br>$channel</p>
+          <p><strong>Published</strong><br>$published_at</p>
+          <p><strong>Latest notes</strong><br><a href="/latest/RELEASE_NOTES.ko.md">RELEASE_NOTES.ko.md</a></p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+EOF
+
 mapfile -t screenshot_files < <(find "$release_root/screenshots" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) | sort)
 
 screenshots_json="[]"
@@ -339,3 +479,4 @@ touch "$latest_root/.gitkeep"
 echo "Prepared release bundle:"
 echo "  release-assets/releases/$version"
 echo "  release-assets/latest"
+echo "  release-assets/root"

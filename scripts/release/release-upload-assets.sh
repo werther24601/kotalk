@@ -66,6 +66,7 @@ fi
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 release_root="$repo_root/release-assets/releases/$version"
 latest_root="$repo_root/release-assets/latest"
+download_root="$repo_root/release-assets/root"
 
 if [[ ! -d "$release_root" || ! -d "$latest_root" ]]; then
   echo "Prepared release bundle not found for version $version" >&2
@@ -90,6 +91,13 @@ rsh="${ssh_cmd[*]}"
 "${ssh_cmd[@]}" "$target_host" "mkdir -p '$target/releases/$version' '$target/latest' '$target/windows/latest' '$target/android/latest'"
 rsync "${rsync_opts[@]}" -e "$rsh" "$release_root"/ "$target_host:$target/releases/$version/"
 rsync "${rsync_opts[@]}" -e "$rsh" "$latest_root"/ "$target_host:$target/latest/"
+if [[ -f "$download_root/index.html" ]]; then
+  root_rsync_opts=(-az)
+  if [[ "$dry_run" == "true" ]]; then
+    root_rsync_opts+=(--dry-run)
+  fi
+  rsync "${root_rsync_opts[@]}" -e "$rsh" "$download_root/index.html" "$target_host:$target/index.html"
+fi
 if [[ -d "$latest_root/windows" ]]; then
   rsync "${rsync_opts[@]}" -e "$rsh" "$latest_root/windows/" "$target_host:$target/windows/latest/"
 fi
