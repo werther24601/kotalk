@@ -45,6 +45,9 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         ShowAllConversationsCommand = new RelayCommand(() => SelectedListFilter = "all");
         ShowUnreadConversationsCommand = new RelayCommand(() => SelectedListFilter = "unread");
         ShowPinnedConversationsCommand = new RelayCommand(() => SelectedListFilter = "pinned");
+        ApplyAckDraftCommand = new RelayCommand(() => ApplyQuickDraft("확인했습니다."));
+        ApplyShareDraftCommand = new RelayCommand(() => ApplyQuickDraft("공유드립니다.\n- "));
+        ApplyTaskDraftCommand = new RelayCommand(() => ApplyQuickDraft("할 일\n- "));
         ToggleCompactModeCommand = new RelayCommand(() => IsCompactDensity = !IsCompactDensity);
         ToggleInspectorCommand = new RelayCommand(() => IsInspectorVisible = !IsInspectorVisible);
         ToggleConversationPaneCommand = new RelayCommand(() => IsConversationPaneCollapsed = !IsConversationPaneCollapsed);
@@ -80,6 +83,9 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     public IRelayCommand ShowAllConversationsCommand { get; }
     public IRelayCommand ShowUnreadConversationsCommand { get; }
     public IRelayCommand ShowPinnedConversationsCommand { get; }
+    public IRelayCommand ApplyAckDraftCommand { get; }
+    public IRelayCommand ApplyShareDraftCommand { get; }
+    public IRelayCommand ApplyTaskDraftCommand { get; }
     public IRelayCommand ToggleCompactModeCommand { get; }
     public IRelayCommand ToggleInspectorCommand { get; }
     public IRelayCommand ToggleConversationPaneCommand { get; }
@@ -102,7 +108,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     [ObservableProperty] private string selectedListFilter = "all";
     [ObservableProperty] private string composerText = string.Empty;
     [ObservableProperty] private string selectedConversationTitle = "KoTalk";
-    [ObservableProperty] private string selectedConversationSubtitle = "대화를 열면 바로 이어집니다.";
+    [ObservableProperty] private string selectedConversationSubtitle = "준비";
     [ObservableProperty] private ConversationRowViewModel? selectedConversation;
     [ObservableProperty] private bool hasErrorText;
     [ObservableProperty] private bool hasFilteredConversations;
@@ -110,6 +116,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     [ObservableProperty] private bool isCompactDensity = true;
     [ObservableProperty] private bool isInspectorVisible;
     [ObservableProperty] private bool isConversationPaneCollapsed;
+    [ObservableProperty] private double conversationPaneWidthValue = 348;
     [ObservableProperty] private int detachedWindowCount;
 
     public bool ShowOnboarding => !IsAuthenticated;
@@ -153,26 +160,26 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     public string DetachedWindowActionGlyph => HasDetachedWindows ? DetachedWindowBadgeText : "↗";
     public bool HasDetachedWindows => DetachedWindowCount > 0;
     public bool IsConversationPaneExpanded => !IsConversationPaneCollapsed;
-    public double ConversationPaneWidth => IsConversationPaneCollapsed ? 0 : (IsCompactDensity ? 296 : 340);
+    public double ConversationPaneWidth => IsConversationPaneCollapsed ? 0 : ConversationPaneWidthValue;
     public double InspectorPaneWidth => IsInspectorVisible ? (IsCompactDensity ? 92 : 108) : 0;
-    public Thickness ConversationRowPadding => IsCompactDensity ? new Thickness(6, 6) : new Thickness(8, 7);
-    public Thickness MessageBubblePadding => IsCompactDensity ? new Thickness(10, 8) : new Thickness(12, 10);
-    public double ConversationAvatarSize => IsCompactDensity ? 26 : 30;
+    public Thickness ConversationRowPadding => IsCompactDensity ? new Thickness(6, 5) : new Thickness(8, 6);
+    public Thickness MessageBubblePadding => IsCompactDensity ? new Thickness(10, 7) : new Thickness(12, 9);
+    public double ConversationAvatarSize => IsCompactDensity ? 28 : 32;
     public double ComposerMinHeight => IsCompactDensity ? 48 : 58;
     public string ComposerCounterText => $"{ComposerText.Trim().Length}";
-    public string SearchWatermark => "대화 검색";
+    public string SearchWatermark => "검색";
     public string InspectorStatusText => HasDetachedWindows
         ? $"{RealtimeStatusGlyph} {DetachedWindowBadgeText}"
         : RealtimeStatusGlyph;
     public string WorkspaceModeText => HasDetachedWindows ? $"분리 창 {DetachedWindowBadgeText}" : "단일 창";
     public string StatusSummaryText => string.IsNullOrWhiteSpace(StatusLine) ? RealtimeStatusText : StatusLine;
-    public string ComposerPlaceholderText => HasSelectedConversation ? "메시지 보내기" : "왼쪽에서 대화를 고르세요";
+    public string ComposerPlaceholderText => HasSelectedConversation ? "메시지" : "대화 선택";
     public string ComposerActionText => Messages.Count == 0 ? "시작" : "보내기";
     public bool ShowMessageEmptyState => Messages.Count == 0;
-    public string MessageEmptyStateTitle => HasSelectedConversation ? "첫 메시지부터 시작" : "대화를 먼저 고르세요";
+    public string MessageEmptyStateTitle => HasSelectedConversation ? "첫 메시지" : "대화 선택";
     public string MessageEmptyStateText => HasSelectedConversation
-        ? "짧게 한 줄만 남겨도 바로 이어집니다."
-        : "받은함에서 대화를 고르거나 창으로 분리해 집중할 수 있습니다.";
+        ? "짧게 남기세요."
+        : "목록에서 선택";
 
     public async Task InitializeAsync()
     {
@@ -270,6 +277,11 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         OnPropertyChanged(nameof(InspectorPaneWidth));
         _ = PersistWorkspaceLayoutAsync();
     }
+    partial void OnConversationPaneWidthValueChanged(double value)
+    {
+        OnPropertyChanged(nameof(ConversationPaneWidth));
+        _ = PersistWorkspaceLayoutAsync();
+    }
     partial void OnIsConversationPaneCollapsedChanged(bool value)
     {
         OnPropertyChanged(nameof(ConversationPaneGlyph));
@@ -292,7 +304,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
     {
         UpdateSelectedConversationState(value?.ConversationId);
         SelectedConversationTitle = value?.Title ?? "KoTalk";
-        SelectedConversationSubtitle = value?.Subtitle ?? "받은함과 대화를 한 화면에서 관리합니다.";
+        SelectedConversationSubtitle = value?.Subtitle ?? "대화";
         OnPropertyChanged(nameof(SelectedConversationGlyph));
         OnPropertyChanged(nameof(HasSelectedConversation));
         OnPropertyChanged(nameof(HasSelectedConversationUnread));
@@ -317,7 +329,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                     $"desktop-{Environment.MachineName.ToLowerInvariant()}",
                     "windows",
                     Environment.MachineName,
-                    "0.1.0"));
+                    "0.1.0-alpha.4"));
 
             var response = await _apiClient.RegisterAlphaQuickAsync(apiBaseUrl, request, CancellationToken.None);
             ApiBaseUrl = apiBaseUrl;
@@ -370,7 +382,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         SelectedListFilter = "all";
         SelectedConversation = null;
         SelectedConversationTitle = "KoTalk";
-        SelectedConversationSubtitle = "대화를 열면 바로 이어집니다.";
+        SelectedConversationSubtitle = "준비";
         NotifyConversationMetricsChanged();
     }
 
@@ -381,9 +393,17 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
             return;
         }
 
+        Messages.Clear();
+        NotifyMessageStateChanged();
+
         await RunBusyAsync(async () =>
         {
             var items = await _apiClient.GetMessagesAsync(_session.ApiBaseUrl, _session.AccessToken, value.ConversationId, CancellationToken.None);
+
+            if (!string.Equals(SelectedConversation?.ConversationId, value.ConversationId, StringComparison.Ordinal))
+            {
+                return;
+            }
 
             Messages.Clear();
             foreach (var item in items.Items)
@@ -667,6 +687,27 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         OnPropertyChanged(nameof(PinnedConversationCount));
     }
 
+    public void UpdateConversationPaneWidth(double width)
+    {
+        if (IsConversationPaneCollapsed)
+        {
+            return;
+        }
+
+        var clamped = Math.Clamp(Math.Round(width), 280, 480);
+        if (Math.Abs(clamped - ConversationPaneWidthValue) > 1)
+        {
+            ConversationPaneWidthValue = clamped;
+        }
+    }
+
+    private void ApplyQuickDraft(string template)
+    {
+        ComposerText = string.IsNullOrWhiteSpace(ComposerText)
+            ? template
+            : ComposerText.TrimEnd() + Environment.NewLine + template;
+    }
+
     private void LoadSampleWorkspace()
     {
         Conversations.Clear();
@@ -676,6 +717,13 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         CurrentUserDisplayName = "이안";
         DisplayName = "이안";
         InviteCode = string.Empty;
+        _currentUserId = "sample-user";
+        _session = new DesktopSession(
+            DefaultApiBaseUrl,
+            "sample-access",
+            "sample-refresh",
+            CurrentUserDisplayName,
+            "sample-ops");
         RealtimeState = RealtimeConnectionState.Connected;
         RealtimeStatusText = "연결됨";
         StatusLine = "준비";
@@ -683,6 +731,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         IsCompactDensity = true;
         IsInspectorVisible = false;
         IsConversationPaneCollapsed = false;
+        ConversationPaneWidthValue = 348;
         DetachedWindowCount = 1;
         ErrorText = null;
 
@@ -691,8 +740,8 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         {
             ConversationId = "sample-ops",
             Title = "제품 운영",
-            Subtitle = "스크린샷 기준으로 레이아웃을 다시 정리했습니다.",
-            LastMessageText = "스크린샷 기준으로 레이아웃을 다시 정리했습니다.",
+            Subtitle = "레이아웃 검수 메모를 확인해 주세요.",
+            LastMessageText = "레이아웃 검수 메모를 확인해 주세요.",
             MetaText = FormatConversationMeta(now.AddMinutes(-5), 2),
             UnreadCount = 2,
             IsPinned = true,
@@ -703,8 +752,8 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         {
             ConversationId = "sample-review",
             Title = "디자인 리뷰",
-            Subtitle = "오후 2시에 검수 포인트만 다시 볼게요.",
-            LastMessageText = "오후 2시에 검수 포인트만 다시 볼게요.",
+            Subtitle = "오후 2시에 포인트만 다시 볼게요.",
+            LastMessageText = "오후 2시에 포인트만 다시 볼게요.",
             MetaText = FormatConversationMeta(now.AddMinutes(-22), 0),
             UnreadCount = 0,
             IsPinned = false,
@@ -715,13 +764,37 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         {
             ConversationId = "sample-friends",
             Title = "주말 약속",
-            Subtitle = "토요일 브런치 장소만 정하면 끝.",
-            LastMessageText = "토요일 브런치 장소만 정하면 끝.",
+            Subtitle = "브런치 장소만 정하면 끝.",
+            LastMessageText = "브런치 장소만 정하면 끝.",
             MetaText = FormatConversationMeta(now.AddMinutes(-54), 0),
             UnreadCount = 0,
             IsPinned = false,
             LastReadSequence = 3,
             SortKey = now.AddMinutes(-54)
+        });
+        Conversations.Add(new ConversationRowViewModel
+        {
+            ConversationId = "sample-team",
+            Title = "운영 팀",
+            Subtitle = "오후 공유본만 마지막으로 확인해 주세요.",
+            LastMessageText = "오후 공유본만 마지막으로 확인해 주세요.",
+            MetaText = FormatConversationMeta(now.AddHours(-2), 1),
+            UnreadCount = 1,
+            IsPinned = false,
+            LastReadSequence = 7,
+            SortKey = now.AddHours(-2)
+        });
+        Conversations.Add(new ConversationRowViewModel
+        {
+            ConversationId = "sample-files",
+            Title = "자료 모음",
+            Subtitle = "최신 캡처와 빌드 경로를 정리해 두었습니다.",
+            LastMessageText = "최신 캡처와 빌드 경로를 정리해 두었습니다.",
+            MetaText = FormatConversationMeta(now.AddHours(-5), 0),
+            UnreadCount = 0,
+            IsPinned = true,
+            LastReadSequence = 9,
+            SortKey = now.AddHours(-5)
         });
 
         NotifyConversationMetricsChanged();
@@ -735,7 +808,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                      {
                          MessageId = "sample-msg-1",
                          SenderName = "민지",
-                         Text = "회의 전에 이슈만 짧게 정리해 주세요.",
+                         Text = "회의 전에 레이아웃 이슈만 짧게 정리해 주세요.",
                          MetaText = "08:54",
                          IsMine = false,
                          ServerSequence = 13
@@ -744,7 +817,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                      {
                          MessageId = "sample-msg-2",
                          SenderName = "이안",
-                         Text = "레이아웃 구조를 다시 줄였습니다. 우측 빈 패널도 없앴어요.",
+                         Text = "리스트 폭을 다시 줄이고 우측 빈 패널도 없앴어요.",
                          MetaText = "08:56",
                          IsMine = true,
                          ServerSequence = 14
@@ -753,7 +826,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                      {
                          MessageId = "sample-msg-3",
                          SenderName = "민지",
-                         Text = "좋아요. 지금 화면이면 바로 검수할 수 있겠네요.",
+                         Text = "좋아요. 지금 화면이면 검수하기 좋겠네요.",
                          MetaText = "08:58",
                          IsMine = false,
                          ServerSequence = 15
@@ -762,7 +835,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                      {
                          MessageId = "sample-msg-4",
                          SenderName = "이안",
-                         Text = "스크린샷 기준으로 레이아웃도 바로 수정했습니다.",
+                         Text = "스크린샷 기준으로 밀도도 같이 맞췄습니다.",
                          MetaText = "09:05",
                          IsMine = true,
                          ServerSequence = 16
@@ -771,7 +844,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                      {
                          MessageId = "sample-msg-5",
                          SenderName = "민지",
-                         Text = "좋아요. 바로 확인 가능한 흐름으로 정리됐어요.",
+                         Text = "좋아요. 확인 흐름이 더 짧아졌어요.",
                          MetaText = "09:06",
                          IsMine = false,
                          ServerSequence = 17
@@ -780,7 +853,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                      {
                          MessageId = "sample-msg-6",
                          SenderName = "이안",
-                         Text = "분리 창도 한 번에 열리도록 남겨 두었습니다.",
+                         Text = "분리 창은 상단 액션으로 남겨 두었습니다.",
                          MetaText = "09:07",
                          IsMine = true,
                          ServerSequence = 18
@@ -793,6 +866,42 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
                          MetaText = "09:08",
                          IsMine = false,
                          ServerSequence = 19
+                     },
+                     new MessageRowViewModel
+                     {
+                         MessageId = "sample-msg-8",
+                         SenderName = "이안",
+                         Text = "검색과 필터는 한 줄 안에서 끝나도록 다시 정리할게요.",
+                         MetaText = "09:10",
+                         IsMine = true,
+                         ServerSequence = 20
+                     },
+                     new MessageRowViewModel
+                     {
+                         MessageId = "sample-msg-9",
+                         SenderName = "민지",
+                         Text = "좋아요. 설명보다 눌리는 구조가 더 중요해요.",
+                         MetaText = "09:11",
+                         IsMine = false,
+                         ServerSequence = 21
+                     },
+                     new MessageRowViewModel
+                     {
+                         MessageId = "sample-msg-10",
+                         SenderName = "이안",
+                         Text = "작성창도 짧은 액션만 남기고 텍스트는 줄였습니다.",
+                         MetaText = "09:12",
+                         IsMine = true,
+                         ServerSequence = 22
+                     },
+                     new MessageRowViewModel
+                     {
+                         MessageId = "sample-msg-11",
+                         SenderName = "민지",
+                         Text = "이제 목록과 대화가 한 화면에서 훨씬 빠르게 읽히네요.",
+                         MetaText = "09:13",
+                         IsMine = false,
+                         ServerSequence = 23
                      }
                  })
         {
@@ -1021,6 +1130,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         IsCompactDensity = true;
         IsInspectorVisible = false;
         IsConversationPaneCollapsed = false;
+        ConversationPaneWidthValue = 348;
         StatusLine = "초기화";
     }
 
@@ -1029,6 +1139,7 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         IsCompactDensity = layout.IsCompactDensity;
         IsInspectorVisible = layout.IsInspectorVisible;
         IsConversationPaneCollapsed = layout.IsConversationPaneCollapsed;
+        ConversationPaneWidthValue = Math.Clamp(layout.ConversationPaneWidth, 280, 480);
     }
 
     private Task PersistWorkspaceLayoutAsync()
@@ -1036,7 +1147,8 @@ public partial class MainWindowViewModel : ViewModelBase, IAsyncDisposable
         return _workspaceLayoutStore.SaveAsync(new DesktopWorkspaceLayout(
             IsCompactDensity,
             IsInspectorVisible,
-            IsConversationPaneCollapsed));
+            IsConversationPaneCollapsed,
+            ConversationPaneWidthValue));
     }
 
     public async ValueTask DisposeAsync()

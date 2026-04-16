@@ -33,6 +33,32 @@ jobs:
       - name: Run API integration tests
         run: dotnet test tests/PhysOn.Api.IntegrationTests/PhysOn.Api.IntegrationTests.csproj -c Release --no-restore
 
+  web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/PhysOn.Web/package-lock.json
+
+      - name: Install web dependencies
+        run: npm ci
+        working-directory: src/PhysOn.Web
+
+      - name: Lint web
+        run: npm run lint
+        working-directory: src/PhysOn.Web
+
+      - name: Build web
+        run: npm run build
+        working-directory: src/PhysOn.Web
+
   desktop-windows:
     runs-on: windows-latest
 

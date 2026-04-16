@@ -12,9 +12,9 @@
         Title="KoTalk"
         Width="1440"
         Height="900"
-        MinWidth="1040"
-        MinHeight="680"
-        Background="#F6F7F8">
+        MinWidth="980"
+        MinHeight="640"
+        Background="#F3F4F6">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -22,39 +22,73 @@
 
     <Window.Styles>
         <Style Selector="Border.surface">
-            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.surface-muted">
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Background" Value="#F5F6F7" />
-            <Setter Property="BorderBrush" Value="#E8EBEF" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="#F7F8FA" />
+            <Setter Property="BorderBrush" Value="#E8EAEE" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.rail-surface">
-            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
-        <Style Selector="Border.dashboard-card">
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Background" Value="#F7F8F9" />
-            <Setter Property="BorderBrush" Value="#E8EBEF" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="12,10" />
-        </Style>
-        <Style Selector="Border.empty-card">
-            <Setter Property="CornerRadius" Value="10" />
+        <Style Selector="Border.row-card">
+            <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#ECEFF3" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Border.row-card.active">
+            <Setter Property="Background" Value="#F3F5F7" />
+            <Setter Property="BorderBrush" Value="#D7DCE3" />
+        </Style>
+        <Style Selector="Border.inline-alert">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#D14B3F" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,8" />
+        </Style>
+        <Style Selector="Border.status-chip">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="#F7F8FA" />
             <Setter Property="BorderBrush" Value="#E4E7EB" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="18" />
+            <Setter Property="Padding" Value="8,3" />
+        </Style>
+        <Style Selector="Border.unread-badge">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="#111418" />
+            <Setter Property="Padding" Value="6,1" />
+        </Style>
+        <Style Selector="Border.message-bubble">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="#F7F8FA" />
+            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="MaxWidth" Value="560" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style Selector="Border.message-bubble.mine">
+            <Setter Property="Background" Value="#EEF1F4" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style Selector="Border.message-bubble.pending">
+            <Setter Property="Opacity" Value="0.72" />
+        </Style>
+        <Style Selector="Border.message-bubble.failed">
+            <Setter Property="BorderBrush" Value="#C9392C" />
         </Style>
         <Style Selector="TextBlock.display-title">
-            <Setter Property="FontSize" Value="28" />
+            <Setter Property="FontSize" Value="30" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="#111418" />
         </Style>
@@ -69,68 +103,68 @@
         </Style>
         <Style Selector="TextBlock.caption">
             <Setter Property="FontSize" Value="11.5" />
-            <Setter Property="Foreground" Value="#6A7480" />
+            <Setter Property="Foreground" Value="#69727D" />
         </Style>
         <Style Selector="TextBlock.eyebrow">
-            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontSize" Value="10.5" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#6A7480" />
+            <Setter Property="Foreground" Value="#69727D" />
         </Style>
         <Style Selector="TextBox.input">
-            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="11,8" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#D9DEE4" />
+            <Setter Property="BorderBrush" Value="#D8DDE4" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
         </Style>
         <Style Selector="TextBox.search-input">
-            <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Padding" Value="10,7" />
-            <Setter Property="Background" Value="#F6F7F8" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="9,7" />
+            <Setter Property="Background" Value="#F7F8FA" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
         </Style>
         <Style Selector="Button.primary-button">
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="12,9" />
             <Setter Property="Background" Value="#111418" />
             <Setter Property="Foreground" Value="#FFFFFF" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
         <Style Selector="Button.secondary-button">
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Padding" Value="13,10" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="10,8" />
             <Setter Property="Background" Value="#FFFFFF" />
             <Setter Property="Foreground" Value="#1E252C" />
-            <Setter Property="BorderBrush" Value="#D9DEE4" />
+            <Setter Property="BorderBrush" Value="#D8DDE4" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Button.icon-button">
-            <Setter Property="Height" Value="34" />
-            <Setter Property="MinWidth" Value="34" />
-            <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Padding" Value="10,0" />
-            <Setter Property="Background" Value="#F7F8F9" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="Background" Value="#F7F8FA" />
             <Setter Property="Foreground" Value="#1E252C" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="12" />
         </Style>
         <Style Selector="Button.icon-button.compact">
             <Setter Property="MinWidth" Value="28" />
             <Setter Property="Height" Value="28" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="6,0" />
             <Setter Property="FontSize" Value="11" />
         </Style>
         <Style Selector="Button.filter-button">
-            <Setter Property="CornerRadius" Value="999" />
-            <Setter Property="Padding" Value="10,6" />
-            <Setter Property="Background" Value="#F7F8F9" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="9,5" />
+            <Setter Property="Background" Value="#F7F8FA" />
             <Setter Property="Foreground" Value="#69727D" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="12" />
         </Style>
@@ -140,13 +174,13 @@
             <Setter Property="BorderBrush" Value="#111418" />
         </Style>
         <Style Selector="Button.rail-button">
-            <Setter Property="MinWidth" Value="48" />
-            <Setter Property="Height" Value="52" />
-            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Width" Value="38" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Background" Value="#FFFFFF" />
             <Setter Property="Foreground" Value="#1E252C" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
         </Style>
@@ -161,194 +195,85 @@
             <Setter Property="Padding" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
-        <Style Selector="Border.row-card">
-            <Setter Property="CornerRadius" Value="9" />
+        <Style Selector="Button.quick-button">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="9,5" />
             <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#EEF1F4" />
+            <Setter Property="Foreground" Value="#4A5560" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
             <Setter Property="BorderThickness" Value="1" />
-        </Style>
-        <Style Selector="Border.row-card.active">
-            <Setter Property="Background" Value="#F3F5F7" />
-            <Setter Property="BorderBrush" Value="#D8DDE4" />
-        </Style>
-        <Style Selector="Border.status-chip">
-            <Setter Property="CornerRadius" Value="999" />
-            <Setter Property="Padding" Value="8,4" />
-            <Setter Property="Background" Value="#F7F8F9" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
-            <Setter Property="BorderThickness" Value="1" />
-        </Style>
-        <Style Selector="Border.inline-alert">
-            <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#C9392C" />
-            <Setter Property="BorderThickness" Value="1,0,0,0" />
-            <Setter Property="Padding" Value="12,10" />
-        </Style>
-        <Style Selector="Border.avatar-badge">
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Background" Value="#F3F4F6" />
-        </Style>
-        <Style Selector="Border.unread-badge">
-            <Setter Property="CornerRadius" Value="999" />
-            <Setter Property="Background" Value="#111418" />
-            <Setter Property="Padding" Value="7,2" />
-        </Style>
-        <Style Selector="Border.message-bubble">
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Background" Value="#F7F8F9" />
-            <Setter Property="BorderBrush" Value="#E4E7EB" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="MaxWidth" Value="680" />
-            <Setter Property="Margin" Value="0,0,0,6" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-        </Style>
-        <Style Selector="Border.message-bubble.mine">
-            <Setter Property="Background" Value="#EEF1F4" />
-            <Setter Property="HorizontalAlignment" Value="Right" />
-        </Style>
-        <Style Selector="Border.message-bubble.pending">
-            <Setter Property="Opacity" Value="0.72" />
-        </Style>
-        <Style Selector="Border.message-bubble.failed">
-            <Setter Property="BorderBrush" Value="#C9392C" />
-        </Style>
-        <Style Selector="TextBlock.message-text">
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Foreground" Value="#111418" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-        </Style>
-        <Style Selector="TextBlock.message-meta">
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="Foreground" Value="#69727D" />
+            <Setter Property="FontSize" Value="11.5" />
         </Style>
     </Window.Styles>
 
-    <Grid Margin="20">
+    <Grid Margin="12">
         <Grid IsVisible="{Binding ShowOnboarding}"
               HorizontalAlignment="Center"
               VerticalAlignment="Center"
-              MaxWidth="1120"
-              ColumnDefinitions="1.2*,420"
-              ColumnSpacing="18">
-            <Border Grid.Column="0" Classes="surface" Padding="28">
-                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="18">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="KTOP" Classes="eyebrow" />
-                        <StackPanel Spacing="6">
-                            <Border Width="60" Height="60" Classes="surface-muted" HorizontalAlignment="Left">
-                                <TextBlock HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Text="KO"
-                                           FontSize="20"
-                                           FontWeight="Bold"
-                                           Foreground="#111418" />
-                            </Border>
-                            <TextBlock Text="KoTalk" Classes="display-title" />
-                            <TextBlock Text="열면 바로 이어지는 대화 워크스페이스" Classes="body" />
-                        </StackPanel>
+              MaxWidth="380">
+            <Border Classes="surface" Padding="22">
+                <StackPanel Spacing="14">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="KO · TALK" Classes="eyebrow" />
+                        <Border Width="50" Height="50" Classes="surface-muted" HorizontalAlignment="Left">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Text="KO"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Foreground="#111418" />
+                        </Border>
+                        <TextBlock Text="KoTalk" Classes="display-title" />
                     </StackPanel>
 
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                        <Border Grid.Column="0" Classes="dashboard-card">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="빠른 입장" Classes="eyebrow" />
-                                <TextBlock Text="표시 이름 + 참여 키" Classes="section-title" />
-                                <TextBlock Text="필수 입력만 바로 보입니다." Classes="caption" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="1" Classes="dashboard-card">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="대화 집중" Classes="eyebrow" />
-                                <TextBlock Text="받은함과 대화만 남김" Classes="section-title" />
-                                <TextBlock Text="불필요한 빈 패널을 줄였습니다." Classes="caption" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="2" Classes="dashboard-card">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="멀티 윈도우" Classes="eyebrow" />
-                                <TextBlock Text="대화별 분리 창" Classes="section-title" />
-                                <TextBlock Text="작업 흐름을 끊지 않고 분리합니다." Classes="caption" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Border Grid.Row="2" Classes="surface-muted" Padding="16">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border Width="36" Height="36" Classes="surface">
-                                <TextBlock HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Text="·"
-                                           FontWeight="Bold"
-                                           Foreground="#111418" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Spacing="4">
-                                <TextBlock Text="세션은 이 기기에만 남깁니다." Classes="section-title" />
-                                <TextBlock Text="서버 주소는 기본으로 숨겨 두고, 변경이 필요할 때만 고급 설정에서 엽니다." Classes="caption" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <Border Grid.Column="1" Classes="surface" Padding="22">
-                <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="10">
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="입장" Classes="section-title" />
-                        <TextBlock Text="필수 입력만 먼저 받습니다." Classes="caption" />
-                    </StackPanel>
-
-                    <TextBox Grid.Row="1"
-                             Classes="input"
+                    <TextBox Classes="input"
                              PlaceholderText="표시 이름"
                              Text="{Binding DisplayName}" />
 
-                    <TextBox Grid.Row="2"
-                             Classes="input"
+                    <TextBox Classes="input"
                              PlaceholderText="참여 키"
                              Text="{Binding InviteCode}" />
 
-                    <Grid Grid.Row="3" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                         <Button Classes="secondary-button"
-                                HorizontalAlignment="Left"
                                 Command="{Binding ToggleAdvancedSettingsCommand}"
                                 Content="{Binding AdvancedSettingsButtonText}" />
                         <TextBox Grid.Column="1"
                                  Classes="input"
                                  IsVisible="{Binding ShowAdvancedSettings}"
-                                 PlaceholderText="기본 서버를 바꾸는 경우만 입력"
+                                 PlaceholderText="서버를 바꿀 때만 입력"
                                  Text="{Binding ApiBaseUrl}" />
                     </Grid>
 
-                    <StackPanel Grid.Row="4" VerticalAlignment="Bottom" Spacing="10">
-                        <CheckBox Content="이 기기에서 이어서 열기" IsChecked="{Binding RememberSession}" />
-                        <Border Classes="inline-alert" IsVisible="{Binding HasErrorText}">
-                            <TextBlock Text="{Binding ErrorText}"
-                                       Classes="caption"
-                                       Foreground="#C9392C"
-                                       TextWrapping="Wrap" />
-                        </Border>
-                        <Button Classes="primary-button"
-                                HorizontalAlignment="Stretch"
-                                Command="{Binding SignInCommand}"
-                                Content="대화 열기" />
-                    </StackPanel>
-                </Grid>
+                    <CheckBox Content="유지" IsChecked="{Binding RememberSession}" />
+
+                    <Border Classes="inline-alert" IsVisible="{Binding HasErrorText}">
+                        <TextBlock Text="{Binding ErrorText}"
+                                   Classes="caption"
+                                   Foreground="#C9392C"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <Button Classes="primary-button"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding SignInCommand}"
+                            Content="열기" />
+                </StackPanel>
             </Border>
         </Grid>
 
         <Grid IsVisible="{Binding ShowShell}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="72" />
+                <ColumnDefinition Width="56" />
                 <ColumnDefinition Width="{Binding ConversationPaneWidth}" />
-                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="6" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Classes="rail-surface" Padding="10">
+            <Border Grid.Column="0" Classes="rail-surface" Padding="8">
                 <Grid RowDefinitions="Auto,*,Auto">
-                    <StackPanel Spacing="12">
-                        <Border Width="48" Height="48" Classes="surface-muted">
+                    <StackPanel Spacing="8">
+                        <Border Width="38" Height="38" Classes="surface-muted">
                             <TextBlock HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Text="KO"
@@ -357,33 +282,12 @@
                         </Border>
 
                         <Button Classes="rail-button active" ToolTip.Tip="받은함">
-                            <StackPanel Spacing="2" HorizontalAlignment="Center">
-                                <TextBlock Text="⌂" HorizontalAlignment="Center" />
-                                <TextBlock Text="대화" Classes="caption" HorizontalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button Classes="rail-button"
-                                ToolTip.Tip="대화를 분리 창으로 열기"
-                                Command="{Binding DetachConversationCommand}">
-                            <StackPanel Spacing="2" HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding DetachedWindowActionGlyph}" HorizontalAlignment="Center" />
-                                <TextBlock Text="분리" Classes="caption" HorizontalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button Classes="rail-button"
-                                ToolTip.Tip="대화 목록 접기"
-                                Command="{Binding ToggleConversationPaneCommand}">
-                            <StackPanel Spacing="2" HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding PaneActionGlyph}" HorizontalAlignment="Center" />
-                                <TextBlock Text="목록" Classes="caption" HorizontalAlignment="Center" />
-                            </StackPanel>
+                            <TextBlock Text="⌂" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Spacing="10">
-                        <Border Width="48" Height="48" Classes="surface-muted">
+                    <StackPanel Grid.Row="2" Spacing="8">
+                        <Border Width="38" Height="38" Classes="surface-muted">
                             <TextBlock HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Text="{Binding CurrentUserMonogram}"
@@ -393,29 +297,21 @@
                         <Button Classes="rail-button"
                                 ToolTip.Tip="로그아웃"
                                 Command="{Binding SignOutCommand}">
-                            <StackPanel Spacing="2" HorizontalAlignment="Center">
-                                <TextBlock Text="⎋" HorizontalAlignment="Center" />
-                                <TextBlock Text="종료" Classes="caption" HorizontalAlignment="Center" />
-                            </StackPanel>
+                            <TextBlock Text="⎋" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Button>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <Border Grid.Column="1"
+            <Border x:Name="ConversationPaneHost"
+                    Grid.Column="1"
                     Classes="surface"
-                    Padding="14"
-                    IsVisible="{Binding IsConversationPaneExpanded}">
-                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                        <StackPanel Spacing="3">
-                            <TextBlock Text="받은함" Classes="section-title" />
-                            <TextBlock Text="{Binding CurrentUserDisplayName}" Classes="caption" />
-                        </StackPanel>
-
-                        <Border Grid.Column="1" Classes="status-chip" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding StatusSummaryText}" Classes="caption" />
-                        </Border>
+                    Padding="10"
+                    IsVisible="{Binding IsConversationPaneExpanded}"
+                    SizeChanged="ConversationPaneHost_OnSizeChanged">
+                <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="8">
+                    <Grid ColumnDefinitions="*" ColumnSpacing="10">
+                        <TextBlock Text="받은함" Classes="section-title" />
                     </Grid>
 
                     <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
@@ -423,7 +319,6 @@
                                  Classes="search-input"
                                  PlaceholderText="{Binding SearchWatermark}"
                                  Text="{Binding ConversationSearchText}" />
-
                         <Button Grid.Column="1"
                                 Classes="icon-button"
                                 ToolTip.Tip="밀도 전환"
@@ -436,127 +331,112 @@
                                 Content="↻" />
                     </Grid>
 
-                    <StackPanel Grid.Row="2" Spacing="10">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <Button Classes="filter-button"
-                                    Classes.selected="{Binding IsAllFilterSelected}"
-                                    Command="{Binding ShowAllConversationsCommand}">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="전체" />
-                                    <TextBlock Text="{Binding TotalConversationCount}" />
-                                </StackPanel>
-                            </Button>
-                            <Button Classes="filter-button"
-                                    Classes.selected="{Binding IsUnreadFilterSelected}"
-                                    Command="{Binding ShowUnreadConversationsCommand}">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="안읽음" />
-                                    <TextBlock Text="{Binding UnreadConversationCount}" />
-                                </StackPanel>
-                            </Button>
-                            <Button Classes="filter-button"
-                                    Classes.selected="{Binding IsPinnedFilterSelected}"
-                                    Command="{Binding ShowPinnedConversationsCommand}">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="고정" />
-                                    <TextBlock Text="{Binding PinnedConversationCount}" />
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-
-                        <Grid>
-                            <Border Classes="empty-card"
-                                    IsVisible="{Binding ShowConversationEmptyState}">
-                                <StackPanel Spacing="10">
-                                    <TextBlock Text="{Binding ConversationEmptyStateText}" Classes="section-title" />
-                                    <TextBlock Text="필터를 바꾸거나 새로고침으로 다시 맞춰 보세요." Classes="caption" />
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Classes="secondary-button"
-                                                Command="{Binding ShowAllConversationsCommand}"
-                                                Content="전체 보기" />
-                                        <Button Classes="secondary-button"
-                                                Command="{Binding ReloadCommand}"
-                                                Content="다시 확인" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <ScrollViewer IsVisible="{Binding HasFilteredConversations}">
-                                <ItemsControl ItemsSource="{Binding FilteredConversations}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:ConversationRowViewModel">
-                                            <Grid Margin="0,0,0,6" ColumnDefinitions="*,Auto" ColumnSpacing="6">
-                                                <Button Classes="row-button"
-                                                        Command="{Binding $parent[Window].DataContext.SelectConversationCommand}"
-                                                        CommandParameter="{Binding .}">
-                                                    <Border Classes="row-card"
-                                                            Classes.active="{Binding IsSelected}"
-                                                            Padding="{Binding $parent[Window].DataContext.ConversationRowPadding}">
-                                                        <Grid ColumnDefinitions="34,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
-                                                            <Border Width="34"
-                                                                    Height="34"
-                                                                    Classes="avatar-badge">
-                                                                <TextBlock HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{Binding AvatarText}"
-                                                                           FontWeight="SemiBold"
-                                                                           Foreground="#111418" />
-                                                            </Border>
-
-                                                            <TextBlock Grid.Column="1"
-                                                                       Text="{Binding Title}"
-                                                                       Classes="body"
-                                                                       FontWeight="SemiBold"
-                                                                       TextTrimming="CharacterEllipsis" />
-                                                            <TextBlock Grid.Column="2"
-                                                                       Text="{Binding MetaText}"
-                                                                       Classes="caption" />
-
-                                                            <TextBlock Grid.Row="1"
-                                                                       Grid.Column="1"
-                                                                       Text="{Binding LastMessageText}"
-                                                                       Classes="caption"
-                                                                       TextTrimming="CharacterEllipsis" />
-
-                                                            <StackPanel Grid.Row="1"
-                                                                        Grid.Column="2"
-                                                                        Orientation="Horizontal"
-                                                                        Spacing="6"
-                                                                        HorizontalAlignment="Right">
-                                                                <TextBlock Text="★"
-                                                                           Classes="caption"
-                                                                           IsVisible="{Binding IsPinned}" />
-                                                                <Border Classes="unread-badge"
-                                                                        IsVisible="{Binding HasUnread}">
-                                                                    <TextBlock Text="{Binding UnreadBadgeText}"
-                                                                               FontSize="11"
-                                                                               Foreground="#FFFFFF" />
-                                                                </Border>
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </Border>
-                                                </Button>
-                                                <Button Grid.Column="1"
-                                                        Classes="icon-button compact"
-                                                        ToolTip.Tip="분리 창으로 열기"
-                                                        Command="{Binding $parent[Window].DataContext.DetachConversationRowCommand}"
-                                                        CommandParameter="{Binding .}"
-                                                        Content="↗" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Grid>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6">
+                        <Button Classes="filter-button"
+                                Classes.selected="{Binding IsAllFilterSelected}"
+                                Command="{Binding ShowAllConversationsCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="전체" />
+                                <TextBlock Text="{Binding TotalConversationCount}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Classes="filter-button"
+                                Classes.selected="{Binding IsUnreadFilterSelected}"
+                                Command="{Binding ShowUnreadConversationsCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="안읽음" />
+                                <TextBlock Text="{Binding UnreadConversationCount}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Classes="filter-button"
+                                Classes.selected="{Binding IsPinnedFilterSelected}"
+                                Command="{Binding ShowPinnedConversationsCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="고정" />
+                                <TextBlock Text="{Binding PinnedConversationCount}" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
 
-                    <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
-                        <Border Classes="status-chip">
-                            <TextBlock Text="{Binding RealtimeStatusText}" Classes="caption" />
+                    <Grid Grid.Row="3">
+                        <Border Classes="surface-muted"
+                                Padding="18"
+                                IsVisible="{Binding ShowConversationEmptyState}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="{Binding ConversationEmptyStateText}" Classes="section-title" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Classes="secondary-button"
+                                            Command="{Binding ShowAllConversationsCommand}"
+                                            Content="전체" />
+                                    <Button Classes="secondary-button"
+                                            Command="{Binding ReloadCommand}"
+                                            Content="새로고침" />
+                                </StackPanel>
+                            </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Classes="status-chip">
-                            <TextBlock Text="{Binding WorkspaceModeText}" Classes="caption" />
-                        </Border>
+
+                        <ScrollViewer IsVisible="{Binding HasFilteredConversations}">
+                            <ItemsControl ItemsSource="{Binding FilteredConversations}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ConversationRowViewModel">
+                                        <Button Classes="row-button"
+                                                Margin="0,0,0,6"
+                                                Command="{Binding $parent[Window].DataContext.SelectConversationCommand}"
+                                                CommandParameter="{Binding .}">
+                                            <Border Classes="row-card"
+                                                    Classes.active="{Binding IsSelected}"
+                                                    Padding="{Binding $parent[Window].DataContext.ConversationRowPadding}">
+                                                <Grid ColumnDefinitions="Auto,*,Auto"
+                                                      RowDefinitions="Auto,Auto"
+                                                      ColumnSpacing="9"
+                                                      RowSpacing="2">
+                                                    <Border Width="{Binding $parent[Window].DataContext.ConversationAvatarSize}"
+                                                            Height="{Binding $parent[Window].DataContext.ConversationAvatarSize}"
+                                                            Classes="surface-muted">
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Text="{Binding AvatarText}"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="#111418" />
+                                                    </Border>
+
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Title}"
+                                                               Classes="body"
+                                                               FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="{Binding MetaText}"
+                                                               Classes="caption" />
+
+                                                    <TextBlock Grid.Row="1"
+                                                               Grid.Column="1"
+                                                               Text="{Binding LastMessageText}"
+                                                               Classes="caption"
+                                                               TextTrimming="CharacterEllipsis" />
+
+                                                    <StackPanel Grid.Row="1"
+                                                                Grid.Column="2"
+                                                                Orientation="Horizontal"
+                                                                Spacing="6"
+                                                                HorizontalAlignment="Right">
+                                                        <TextBlock Text="★"
+                                                                   Classes="caption"
+                                                                   IsVisible="{Binding IsPinned}" />
+                                                        <Border Classes="unread-badge"
+                                                                IsVisible="{Binding HasUnread}">
+                                                            <TextBlock Text="{Binding UnreadBadgeText}"
+                                                                       FontSize="10.5"
+                                                                       Foreground="#FFFFFF" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
             </Border>
@@ -564,72 +444,62 @@
             <GridSplitter Grid.Column="2"
                           Width="6"
                           IsVisible="{Binding IsConversationPaneExpanded}"
-                          Background="#E4E7EB"
+                          Background="#E5E7EB"
                           ResizeDirection="Columns"
                           ShowsPreview="True" />
 
-            <Border Grid.Column="3" Classes="surface" Padding="14">
-                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
-                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
-                        <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                            <Border Width="38" Height="38" Classes="surface-muted">
-                                <TextBlock HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding SelectedConversationGlyph}"
-                                           FontWeight="SemiBold"
-                                           Foreground="#111418" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Spacing="2">
+            <Border Grid.Column="3" Classes="surface" Padding="10">
+                <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="8">
+                        <Border Width="38" Height="38" Classes="surface-muted">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding SelectedConversationGlyph}"
+                                       FontWeight="SemiBold"
+                                       Foreground="#111418" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="{Binding SelectedConversationTitle}"
                                            Classes="section-title"
                                            TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{Binding SelectedConversationSubtitle}"
-                                           Classes="caption"
-                                           TextTrimming="CharacterEllipsis" />
+                                <Border Classes="status-chip" IsVisible="{Binding SelectedConversationIsPinned}">
+                                    <TextBlock Text="고정" Classes="caption" />
+                                </Border>
+                                <Border Classes="unread-badge" IsVisible="{Binding HasSelectedConversationUnread}">
+                                    <TextBlock Text="{Binding SelectedConversationUnreadBadgeText}"
+                                               FontSize="10.5"
+                                               Foreground="#FFFFFF" />
+                                </Border>
                             </StackPanel>
-                        </Grid>
+                            <TextBlock Text="{Binding SelectedConversationSubtitle}"
+                                       Classes="caption"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
 
-                        <Border Grid.Column="1" Classes="status-chip" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding RealtimeStatusText}" Classes="caption" />
-                        </Border>
                         <Button Grid.Column="2"
                                 Classes="icon-button"
-                                ToolTip.Tip="분리 창으로 열기"
+                                ToolTip.Tip="목록 접기"
+                                Command="{Binding ToggleConversationPaneCommand}"
+                                Content="{Binding PaneActionGlyph}" />
+                        <Button Grid.Column="3"
+                                Classes="icon-button"
+                                ToolTip.Tip="분리"
                                 Command="{Binding DetachConversationCommand}"
                                 Content="↗" />
-                        <Button Grid.Column="3"
+                        <Button Grid.Column="4"
                                 Classes="icon-button"
                                 ToolTip.Tip="새로고침"
                                 Command="{Binding ReloadCommand}"
                                 Content="↻" />
                     </Grid>
 
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                        <Border Grid.Column="0" Classes="dashboard-card">
-                            <StackPanel Spacing="3">
-                                <TextBlock Text="안읽음" Classes="eyebrow" />
-                                <TextBlock Text="{Binding UnreadConversationCount}" Classes="section-title" />
-                                <TextBlock Text="지금 바로 볼 대화" Classes="caption" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="1" Classes="dashboard-card">
-                            <StackPanel Spacing="3">
-                                <TextBlock Text="고정" Classes="eyebrow" />
-                                <TextBlock Text="{Binding PinnedConversationCount}" Classes="section-title" />
-                                <TextBlock Text="자주 여는 대화" Classes="caption" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="2" Classes="dashboard-card">
-                            <StackPanel Spacing="3">
-                                <TextBlock Text="창 상태" Classes="eyebrow" />
-                                <TextBlock Text="{Binding WorkspaceModeText}" Classes="section-title" />
-                                <TextBlock Text="분리 창을 바로 열 수 있습니다." Classes="caption" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Grid Grid.Row="2" RowDefinitions="Auto,*" RowSpacing="10">
+                    <Grid Grid.Row="1">
                         <Border Classes="inline-alert"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top"
+                                Margin="0,0,0,8"
                                 IsVisible="{Binding HasErrorText}">
                             <TextBlock Text="{Binding ErrorText}"
                                        Classes="caption"
@@ -637,72 +507,98 @@
                                        TextWrapping="Wrap" />
                         </Border>
 
-                        <Grid Grid.Row="1">
-                            <ScrollViewer Name="MessagesScrollViewer">
-                                <ItemsControl ItemsSource="{Binding Messages}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:MessageRowViewModel">
-                                            <Border Classes="message-bubble"
-                                                    Classes.mine="{Binding IsMine}"
-                                                    Classes.pending="{Binding IsPending}"
-                                                    Classes.failed="{Binding IsFailed}"
-                                                    Padding="{Binding $parent[Window].DataContext.MessageBubblePadding}">
-                                                <StackPanel Spacing="5">
-                                                    <TextBlock Text="{Binding SenderName}"
-                                                               Classes="caption"
-                                                               FontWeight="SemiBold"
-                                                               IsVisible="{Binding ShowSenderName}" />
-                                                    <TextBlock Text="{Binding Text}" Classes="message-text" />
-                                                    <TextBlock Text="{Binding MetaText}" Classes="message-meta" />
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
+                        <ScrollViewer Name="MessagesScrollViewer"
+                                      Margin="0,12,0,0"
+                                      MaxWidth="860"
+                                      HorizontalAlignment="Center">
+                            <ItemsControl ItemsSource="{Binding Messages}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MessageRowViewModel">
+                                        <Border Classes="message-bubble"
+                                                Classes.mine="{Binding IsMine}"
+                                                Classes.pending="{Binding IsPending}"
+                                                Classes.failed="{Binding IsFailed}"
+                                                Padding="{Binding $parent[Window].DataContext.MessageBubblePadding}">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="{Binding SenderName}"
+                                                           Classes="caption"
+                                                           FontWeight="SemiBold"
+                                                           IsVisible="{Binding ShowSenderName}" />
+                                                <TextBlock Text="{Binding Text}"
+                                                           FontSize="13"
+                                                           Foreground="#111418"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding MetaText}" Classes="caption" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
 
-                            <Border Classes="empty-card"
-                                    Width="340"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    IsVisible="{Binding ShowMessageEmptyState}">
-                                <StackPanel Spacing="10">
-                                    <TextBlock Text="{Binding MessageEmptyStateTitle}" Classes="section-title" />
-                                    <TextBlock Text="{Binding MessageEmptyStateText}" Classes="caption" TextWrapping="Wrap" />
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Classes="secondary-button"
-                                                Command="{Binding DetachConversationCommand}"
-                                                Content="분리 창" />
-                                        <Button Classes="secondary-button"
-                                                Command="{Binding ReloadCommand}"
-                                                Content="새로고침" />
-                                    </StackPanel>
+                        <Border Classes="surface-muted"
+                                Width="280"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Padding="14"
+                                IsVisible="{Binding ShowMessageEmptyState}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="{Binding MessageEmptyStateTitle}" Classes="section-title" />
+                                <TextBlock Text="{Binding MessageEmptyStateText}" Classes="caption" TextWrapping="Wrap" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Classes="secondary-button"
+                                            Command="{Binding DetachConversationCommand}"
+                                            Content="분리 창" />
+                                    <Button Classes="secondary-button"
+                                            Command="{Binding ReloadCommand}"
+                                            Content="새로고침" />
                                 </StackPanel>
-                            </Border>
-                        </Grid>
+                            </StackPanel>
+                        </Border>
                     </Grid>
 
-                    <Border Grid.Row="3" Classes="surface-muted" Padding="10">
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="8">
-                            <TextBox Name="ComposerTextBox"
-                                     Grid.RowSpan="2"
-                                     Classes="input"
-                                     PlaceholderText="{Binding ComposerPlaceholderText}"
-                                     AcceptsReturn="True"
-                                     TextWrapping="Wrap"
-                                     MinHeight="{Binding ComposerMinHeight}"
-                                     Text="{Binding ComposerText}"
-                                     KeyDown="ComposerTextBox_OnKeyDown" />
+                    <Border Grid.Row="2"
+                            Classes="surface-muted"
+                            Padding="8"
+                            MaxWidth="860"
+                            HorizontalAlignment="Center">
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Classes="quick-button"
+                                        ToolTip.Tip="확인"
+                                        Command="{Binding ApplyAckDraftCommand}"
+                                        Content="↺" />
+                                <Button Classes="quick-button"
+                                        ToolTip.Tip="공유"
+                                        Command="{Binding ApplyShareDraftCommand}"
+                                        Content="⇡" />
+                                <Button Classes="quick-button"
+                                        ToolTip.Tip="할 일"
+                                        Command="{Binding ApplyTaskDraftCommand}"
+                                        Content="☑" />
+                            </StackPanel>
 
-                            <Button Grid.Column="1"
-                                    Classes="primary-button"
-                                    VerticalAlignment="Stretch"
-                                    Command="{Binding SendMessageCommand}"
-                                    Content="{Binding ComposerActionText}" />
+                            <Grid Grid.Row="1"
+                                  ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="10">
+                                <TextBox Name="ComposerTextBox"
+                                         Classes="input"
+                                         PlaceholderText="{Binding ComposerPlaceholderText}"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         MinHeight="{Binding ComposerMinHeight}"
+                                         Text="{Binding ComposerText}"
+                                         KeyDown="ComposerTextBox_OnKeyDown" />
 
-                            <Border Grid.Row="1" Grid.Column="1" Classes="status-chip" HorizontalAlignment="Right">
-                                <TextBlock Text="{Binding ComposerCounterText}" Classes="caption" />
-                            </Border>
+                                <StackPanel Grid.Column="1"
+                                            Spacing="6"
+                                            HorizontalAlignment="Right">
+                                    <Button Classes="primary-button"
+                                            MinWidth="74"
+                                            Command="{Binding SendMessageCommand}"
+                                            Content="{Binding ComposerActionText}" />
+                                </StackPanel>
+                            </Grid>
                         </Grid>
                     </Border>
                 </Grid>

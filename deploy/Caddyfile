@@ -7,14 +7,18 @@
 	root * /srv/download
 	redir /windows /windows/latest 302
 	redir /android /android/latest 302
-	redir /windows/latest /windows/latest/VsMessenger-win-x64.zip 302
-	redir /android/latest /android/latest/VsMessenger-android-universal.apk 302
+	redir /windows/latest /latest/KoTalk-windows-x64.zip 302
+	redir /android/latest /latest/KoTalk-android-universal.apk 302
 	redir /latest /latest/version.json 302
 	header {
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+		Cross-Origin-Resource-Policy "same-origin"
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Robots-Tag "noindex, nofollow"
 	}
 	file_server
 }
@@ -22,6 +26,10 @@
 {$WEBAPP_HOST:vstalk.phy.kr} {
 	encode zstd gzip
 	header {
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
@@ -41,6 +49,9 @@
 {$API_HOST} {
 	encode zstd gzip
 	header {
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+		Cross-Origin-Resource-Policy "same-origin"
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"

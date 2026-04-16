@@ -53,7 +53,7 @@ type IconName =
   | 'group'
 
 const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? ''
-const APP_VERSION = 'web-0.1.0-alpha.3'
+const APP_VERSION = 'web-0.1.0-alpha.4'
 
 const CONNECTION_LABEL: Record<ConnectionState, string> = {
   idle: '준비 중',
@@ -79,6 +79,18 @@ function compareConversations(left: ConversationSummaryDto, right: ConversationS
 
 function sortConversations(items: ConversationSummaryDto[]): ConversationSummaryDto[] {
   return [...items].sort(compareConversations)
+}
+
+function dedupeConversationsById(items: ConversationSummaryDto[]): ConversationSummaryDto[] {
+  const seen = new Set<string>()
+  return items.filter((item) => {
+    if (seen.has(item.conversationId)) {
+      return false
+    }
+
+    seen.add(item.conversationId)
+    return true
+  })
 }
 
 function upsertConversation(
@@ -415,10 +427,6 @@ function App() {
       messages: messageMatches.slice(0, 8),
     }
   }, [conversations, messagesByConversation, normalizedSearchQuery])
-  const savedConversations = useMemo(
-    () => conversations.filter((conversation) => conversation.isPinned || conversation.unreadCount > 0),
-    [conversations],
-  )
   const replyNeededConversations = useMemo(
     () => conversations.filter((conversation) => conversation.unreadCount > 0).slice(0, 4),
     [conversations],
@@ -430,6 +438,24 @@ function App() {
   const recentConversations = useMemo(
     () => conversations.slice(0, 4),
     [conversations],
+  )
+  const savedReplyQueue = replyNeededConversations
+  const savedPinnedQueue = useMemo(
+    () => dedupeConversationsById(pinnedConversations.filter((conversation) => !replyNeededConversations.some((item) => item.conversationId === conversation.conversationId))),
+    [pinnedConversations, replyNeededConversations],
+  )
+  const savedRecentQueue = useMemo(
+    () => dedupeConversationsById(
+      recentConversations.filter((conversation) =>
+        !replyNeededConversations.some((item) => item.conversationId === conversation.conversationId) &&
+        !pinnedConversations.some((item) => item.conversationId === conversation.conversationId),
+      ),
+    ),
+    [pinnedConversations, recentConversations, replyNeededConversations],
+  )
+  const savedConversations = useMemo(
+    () => dedupeConversationsById([...savedReplyQueue, ...savedPinnedQueue, ...savedRecentQueue]),
+    [savedPinnedQueue, savedRecentQueue, savedReplyQueue],
   )
   const searchResultTotal = searchResults.conversations.length + searchResults.messages.length
   const primaryResumeConversation = selectedConversation ?? conversations[0] ?? null
@@ -958,11 +984,11 @@ function App() {
   const destinationMeta: Record<BottomDestination, { title: string; subtitle: string }> = {
     inbox: {
       title: '받은함',
-      subtitle: me?.displayName ? `${me.displayName}` : '최근 대화',
+      subtitle: me?.displayName ? `${me.displayName}` : '최근',
     },
     search: {
       title: '검색',
-      subtitle: '대화 다시 찾기',
+      subtitle: '다시 찾기',
     },
     saved: {
       title: '보관',
@@ -970,7 +996,7 @@ function App() {
     },
     me: {
       title: '내 공간',
-      subtitle: '세션과 기기',
+      subtitle: '세션',
     },
   }
   const activeDestinationMeta = destinationMeta[bottomDestination]
@@ -1038,41 +1064,19 @@ function App() {
               </span>
               <div className="brand-lockup__text">
                 <strong>KoTalk</strong>
-                <span>가볍게 이어지는 대화</span>
               </div>
             </div>
             <span className="surface-badge">WEB</span>
           </header>
 
-          <section className="onboarding__hero">
-            <p className="eyebrow">KO · TALK</p>
-            <h1>
-              열면
-              <br />
-              바로 대화.
-            </h1>
-            <p className="onboarding__summary">표시 이름과 참여 키만 넣고 바로 시작합니다.</p>
-
-            <div className="summary-strip summary-strip--hero" aria-label="핵심 특성">
-              <span className="summary-chip"><Icon name="spark" /> 빠른 시작</span>
-              <span className="summary-chip"><Icon name="chat" /> 작업 대화</span>
-              <span className="summary-chip"><Icon name="session" /> 기기 기억</span>
-            </div>
-          </section>
-
           <section className="onboarding__panel">
-            <div className="panel__heading">
-              <span className="panel__label">Join</span>
-              <h2>시작</h2>
-            </div>
-
             <form className="onboarding__form" onSubmit={handleRegister}>
               <label className="field">
-                <span>표시 이름</span>
                 <input
+                  aria-label="표시 이름"
                   autoComplete="nickname"
                   maxLength={20}
-                  placeholder="이름"
+                  placeholder="표시 이름"
                   required
                   value={displayName}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -1080,10 +1084,10 @@ function App() {
               </label>
 
               <label className="field">
-                <span>참여 키</span>
                 <input
+                  aria-label="참여 키"
                   autoCapitalize="characters"
-                  placeholder="참여 키 입력"
+                  placeholder="참여 키"
                   required
                   value={inviteCode}
                   onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
@@ -1096,10 +1100,10 @@ function App() {
 
               {showAdvanced ? (
                 <label className="field">
-                  <span>서버 주소</span>
                   <input
+                    aria-label="서버 주소"
                     inputMode="url"
-                    placeholder="기본 서버를 바꾸는 경우만 입력"
+                    placeholder="서버 주소"
                     value={apiBaseUrl}
                     onChange={(event) => setApiBaseUrl(event.target.value)}
                   />
@@ -1107,14 +1111,9 @@ function App() {
               ) : null}
 
               <button className="primary-button" disabled={registering} type="submit">
-                {registering ? '입장 중...' : '대화 열기'}
+                {registering ? '입장 중...' : '열기'}
               </button>
             </form>
-
-            <div className="panel__foot">
-              <span>세션은 이 기기에만</span>
-              <span>서버는 고급에서만</span>
-            </div>
 
             {statusMessage ? <p className="status-text">{statusMessage}</p> : null}
           </section>
@@ -1156,7 +1155,7 @@ function App() {
             </button>
           </aside>
 
-          <section className={`pane pane--list ${mobileView === 'chat' ? 'pane--hidden' : ''}`}>
+          <section className={`pane pane--list pane--${bottomDestination} ${mobileView === 'chat' ? 'pane--hidden' : ''}`}>
             <header className="appbar">
               <div className="appbar__leading">
                 <span className="brand-mark brand-mark--small" aria-hidden="true">
@@ -1190,32 +1189,6 @@ function App() {
             {bottomDestination === 'inbox' ? (
               <>
                 <div className="toolbar-strip" aria-label="받은함 빠른 막대">
-                  <div className="toolbar-strip__group">
-                    <span className={`status-chip status-chip--${connectionState}`}>
-                      <span className="status-dot" aria-hidden="true" />
-                      {CONNECTION_DESCRIPTION[connectionState]}
-                    </span>
-                    <span className="status-panel__time">{formatRelativeConnection(storedSession?.savedAt ?? null)}</span>
-                  </div>
-                  <div className="toolbar-strip__group toolbar-strip__group--actions">
-                    <button
-                      className="icon-button icon-button--soft"
-                      type="button"
-                      aria-label="검색 열기"
-                      onClick={() => openDestination('search')}
-                    >
-                      <Icon name="search" />
-                    </button>
-                    <button
-                      className="icon-button icon-button--soft"
-                      type="button"
-                      aria-label="내 공간 열기"
-                      onClick={() => openDestination('me')}
-                    >
-                      <Icon name="me" />
-                    </button>
-                  </div>
-
                   <button
                     className={`summary-chip ${listFilter === 'all' ? 'summary-chip--active' : ''}`}
                     type="button"
@@ -1237,6 +1210,24 @@ function App() {
                   >
                     <Icon name="pin" /> {pinnedTotal}
                   </button>
+                  <div className="toolbar-strip__group toolbar-strip__group--actions">
+                    <button
+                      className="icon-button icon-button--soft"
+                      type="button"
+                      aria-label="검색"
+                      onClick={() => openDestination('search')}
+                    >
+                      <Icon name="search" />
+                    </button>
+                    <button
+                      className="icon-button icon-button--soft"
+                      type="button"
+                      aria-label="새로고침"
+                      onClick={handleReconnect}
+                    >
+                      <Icon name="refresh" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="conversation-list">
@@ -1290,7 +1281,7 @@ function App() {
                   <button
                     className="icon-button icon-button--soft"
                     type="button"
-                    aria-label="최근 대화 열기"
+                    aria-label="최근 대화"
                     onClick={() => {
                       if (primaryResumeConversation) {
                         selectConversation(primaryResumeConversation.conversationId, 'chat')
@@ -1326,13 +1317,41 @@ function App() {
 
                 <div className="conversation-list">
                   {!normalizedSearchQuery ? (
-                    <p className="empty-state empty-state--inline">대화와 메시지를 다시 찾아보세요.</p>
+                    <div className="search-results search-results--discovery">
+                      {recentConversations.length > 0 ? (
+                        <section className="saved-section">
+                          <div className="saved-section__header">
+                            <strong>최근</strong>
+                            <span>{recentConversations.length}개</span>
+                          </div>
+                          <div className="saved-section__body">{renderConversationRows(recentConversations)}</div>
+                        </section>
+                      ) : null}
+                      {replyNeededConversations.length > 0 ? (
+                        <section className="saved-section">
+                          <div className="saved-section__header">
+                            <strong>안읽음</strong>
+                            <span>{replyNeededConversations.length}개</span>
+                          </div>
+                          <div className="saved-section__body">{renderConversationRows(replyNeededConversations)}</div>
+                        </section>
+                      ) : null}
+                      {pinnedConversations.length > 0 ? (
+                        <section className="saved-section">
+                          <div className="saved-section__header">
+                            <strong>고정</strong>
+                            <span>{pinnedConversations.length}개</span>
+                          </div>
+                          <div className="saved-section__body">{renderConversationRows(pinnedConversations)}</div>
+                        </section>
+                      ) : null}
+                    </div>
                   ) : null}
                   {normalizedSearchQuery && searchResultTotal === 0 ? (
                     <p className="empty-state empty-state--inline">결과가 없습니다. 다른 단어로 다시 찾아보세요.</p>
                   ) : null}
                   {normalizedSearchQuery && searchResultTotal > 0 ? (
-                    <div className="search-results">
+                    <div className="search-results search-results--matches">
                       {searchResults.messages.length > 0 ? (
                         <section className="saved-section">
                           <div className="saved-section__header">
@@ -1365,42 +1384,42 @@ function App() {
             {bottomDestination === 'saved' ? (
               <>
                 <div className="toolbar-strip toolbar-strip--utility" aria-label="보관함 요약">
-                  <span className="status-chip"><Icon name="spark" /> {replyNeededConversations.length}</span>
-                  <span className="status-chip"><Icon name="pin" /> {pinnedConversations.length}</span>
+                  <span className="status-chip"><Icon name="spark" /> {savedReplyQueue.length}</span>
+                  <span className="status-chip"><Icon name="pin" /> {savedPinnedQueue.length}</span>
                 </div>
 
-                <div className="conversation-list">
+                <div className="conversation-list conversation-list--saved">
                   {savedConversations.length === 0 ? (
                     <p className="empty-state empty-state--inline">지금 보관된 후속 작업이 없습니다.</p>
                   ) : null}
 
-                  {replyNeededConversations.length > 0 ? (
+                  {savedReplyQueue.length > 0 ? (
                     <section className="saved-section">
                       <div className="saved-section__header">
                         <strong>답장</strong>
-                        <span>{replyNeededConversations.length}개</span>
+                        <span>{savedReplyQueue.length}개</span>
                       </div>
-                      <div className="saved-section__body">{renderConversationRows(replyNeededConversations)}</div>
+                      <div className="saved-section__body">{renderConversationRows(savedReplyQueue)}</div>
                     </section>
                   ) : null}
 
-                  {pinnedConversations.length > 0 ? (
+                  {savedPinnedQueue.length > 0 ? (
                     <section className="saved-section">
                       <div className="saved-section__header">
-                        <strong>고정</strong>
-                        <span>{pinnedConversations.length}개</span>
+                        <strong>중요</strong>
+                        <span>{savedPinnedQueue.length}개</span>
                       </div>
-                      <div className="saved-section__body">{renderConversationRows(pinnedConversations)}</div>
+                      <div className="saved-section__body">{renderConversationRows(savedPinnedQueue)}</div>
                     </section>
                   ) : null}
 
-                  {recentConversations.length > 0 ? (
+                  {savedRecentQueue.length > 0 ? (
                     <section className="saved-section">
                       <div className="saved-section__header">
                         <strong>최근</strong>
-                        <span>{recentConversations.length}개</span>
+                        <span>{savedRecentQueue.length}개</span>
                       </div>
-                      <div className="saved-section__body">{renderConversationRows(recentConversations)}</div>
+                      <div className="saved-section__body">{renderConversationRows(savedRecentQueue)}</div>
                     </section>
                   ) : null}
                 </div>
@@ -1481,8 +1500,7 @@ function App() {
 
                   {loadingConversationId !== selectedConversation.conversationId && selectedMessages.length === 0 ? (
                     <div className="empty-panel empty-panel--chat">
-                      <strong>{selectedConversation.memberCount <= 1 ? '첫 메모부터 시작' : '첫 메시지부터 시작'}</strong>
-                      <p>짧게 한 줄만 남겨도 대화가 바로 이어집니다.</p>
+                      <strong>{selectedConversation.memberCount <= 1 ? '첫 메모' : '첫 메시지'}</strong>
                       <div className="empty-panel__actions">
                         <button
                           className="secondary-button"
@@ -1527,13 +1545,13 @@ function App() {
                 <form className="composer" onSubmit={handleSendMessage}>
                   <div className="composer-shortcuts" aria-label="빠른 입력">
                     <button className="ghost-button" type="button" onClick={() => applyQuickDraft('확인 후 답드릴게요.')}>
-                      확인 후 회신
+                      확인
                     </button>
                     <button className="ghost-button" type="button" onClick={() => applyQuickDraft('자료 공유드립니다.\n- ')}>
-                      자료 공유
+                      공유
                     </button>
                     <button className="ghost-button" type="button" onClick={() => applyQuickDraft('잠시 뒤 다시 말씀드릴게요.')}>
-                      잠시 후
+                      나중
                     </button>
                   </div>
                   <label className="composer__field">

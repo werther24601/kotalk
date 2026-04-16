@@ -26,9 +26,22 @@ public partial class App : Application
                 DataContext = viewModel,
             };
 
-            _ = viewModel.InitializeAsync();
+            _ = InitializeDesktopAsync(viewModel);
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static async Task InitializeDesktopAsync(MainWindowViewModel viewModel)
+    {
+        await viewModel.InitializeAsync();
+
+        if (string.Equals(
+                Environment.GetEnvironmentVariable("KOTALK_DESKTOP_OPEN_SAMPLE_WINDOW"),
+                "1",
+                StringComparison.Ordinal))
+        {
+            await viewModel.OpenDetachedConversationFromShortcutAsync();
+        }
     }
 }

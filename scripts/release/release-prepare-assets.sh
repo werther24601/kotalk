@@ -16,7 +16,7 @@ Options:
   --force                  Overwrite an existing release folder
 
 Environment:
-  DOWNLOAD_BASE_URL        Defaults to https://download-vs-messanger.phy.kr
+  DOWNLOAD_BASE_URL        Defaults to https://download-vstalk.phy.kr
 EOF
 }
 
@@ -95,7 +95,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 release_root="$repo_root/release-assets/releases/$version"
 latest_root="$repo_root/release-assets/latest"
 template_path="$repo_root/release-assets/templates/RELEASE_NOTES.ko.md"
-download_base_url="${DOWNLOAD_BASE_URL:-https://download-vs-messanger.phy.kr}"
+download_base_url="${DOWNLOAD_BASE_URL:-https://download-vstalk.phy.kr}"
 published_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 derive_release_url() {
@@ -179,8 +179,8 @@ EOF
 }
 
 if [[ -n "$windows_zip" ]]; then
-  windows_release_name="VsMessenger-win-x64-$version.zip"
-  windows_latest_name="VsMessenger-win-x64.zip"
+  windows_release_name="KoTalk-windows-x64-$version.zip"
+  windows_latest_name="KoTalk-windows-x64.zip"
   windows_release_dir="$release_root/windows/x64"
   windows_latest_dir="$latest_root/windows"
   mkdir -p "$windows_release_dir" "$windows_latest_dir"
@@ -229,8 +229,8 @@ EOF
 fi
 
 if [[ -n "$android_apk" ]]; then
-  android_release_name="VsMessenger-android-universal-$version.apk"
-  android_latest_name="VsMessenger-android-universal.apk"
+  android_release_name="KoTalk-android-universal-$version.apk"
+  android_latest_name="KoTalk-android-universal.apk"
   android_release_dir="$release_root/android/universal"
   android_latest_dir="$latest_root/android"
   mkdir -p "$android_release_dir" "$android_latest_dir"

@@ -9,7 +9,7 @@
 | Public brand | `KoTalk` |
 | Stage | `Alpha` |
 | Most usable surface | Mobile web live + Windows build |
-| Biggest current gap | Android 실빌드와 다운로드 미러 정합성 |
+| Biggest current gap | Android 실빌드와 데스크톱 멀티윈도우 완성도 |
 | Signup direction | 공개형 1회성 인증 중심으로 재설계 중 |
 | Tone of this repo | 현재 동작 범위와 남은 갭을 함께 적는 제품형 저장소 |
 
@@ -30,7 +30,7 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 | Windows desktop | 저장소 빌드 / 릴리즈 산출물 | Buildable | 핵심 메시징 루프 검증 가능 |
 | Mobile web | [vstalk.phy.kr](https://vstalk.phy.kr) | Live | 가입, 대화, 검색, 보관 1차 흐름 제공 |
 | Android | 저장소 릴리즈 예정 | In progress | 문서와 배포 구조 우선 정리 중 |
-| Official mirror | [download-vstalk.phy.kr](https://download-vstalk.phy.kr) | Normalizing | 2026-04-16 기준 DNS/HTTPS 정합성 확인 필요 |
+| Official mirror | [download-vstalk.phy.kr](https://download-vstalk.phy.kr) | Live | Windows latest와 version manifest를 HTTPS로 제공 |
 
 ## Verified Now
 
@@ -67,7 +67,6 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 ## In Progress
 
 - Android 첫 실사용 빌드
-- 공개 다운로드 미러 정합성
 - 릴리즈 페이지와 미러 간 latest 라우트 통합
 - 검색 범위 확장
 - 파일 전송
@@ -80,7 +79,7 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 - Android 실사용 빌드는 아직 제공되지 않습니다.
 - 파일 전송은 미구현입니다.
 - 검색은 전역 파일/링크/사람 범위까지 확장되지 않았습니다.
-- 공식 다운로드 미러는 DNS/HTTPS 정상화가 끝나야 안정 채널로 표기할 수 있습니다.
+- 공식 다운로드 미러는 현재 Windows latest와 version manifest 기준으로 동작합니다.
 - 데스크톱 멀티 윈도우는 방향은 잡혀 있지만, 실제 생산성 흐름은 더 다듬어야 합니다.
 
 ## Download And Release Paths

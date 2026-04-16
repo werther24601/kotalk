@@ -43,23 +43,23 @@ jobs:
           global-json-file: global.json
 
       - name: Restore desktop project
-        run: dotnet restore src/VsMessenger.Desktop/VsMessenger.Desktop.csproj
+        run: dotnet restore src/PhysOn.Desktop/PhysOn.Desktop.csproj
 
       - name: Publish portable desktop build
-        run: dotnet publish src/VsMessenger.Desktop/VsMessenger.Desktop.csproj -c Release -r win-x64 --self-contained true -o out/win-x64
+        run: dotnet publish src/PhysOn.Desktop/PhysOn.Desktop.csproj -c Release -r win-x64 --self-contained true -o out/win-x64
 
       - name: Create portable ZIP
         shell: pwsh
-        run: Compress-Archive -Path out/win-x64/* -DestinationPath out/VsMessenger-win-x64.zip
+        run: Compress-Archive -Path out/win-x64/* -DestinationPath out/KoTalk-windows-x64.zip
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-portable
-          path: out/VsMessenger-win-x64.zip
+          path: out/KoTalk-windows-x64.zip
 
   build-android:
-    if: ${{ hashFiles('src/VsMessenger.Mobile.Android/*.csproj') != '' }}
+    if: ${{ hashFiles('src/PhysOn.Mobile.Android/*.csproj') != '' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -81,11 +81,11 @@ jobs:
         run: dotnet workload install android
 
       - name: Restore Android project
-        run: dotnet restore src/VsMessenger.Mobile.Android/VsMessenger.Mobile.Android.csproj
+        run: dotnet restore src/PhysOn.Mobile.Android/PhysOn.Mobile.Android.csproj
 
       - name: Publish Android APK
         run: |
-          dotnet publish src/VsMessenger.Mobile.Android/VsMessenger.Mobile.Android.csproj \
+          dotnet publish src/PhysOn.Mobile.Android/PhysOn.Mobile.Android.csproj \
             -c Release \
             -f net8.0-android \
             -p:AndroidPackageFormat=apk \
@@ -96,13 +96,13 @@ jobs:
         run: |
           apk_path="$(find out/android -type f -name '*.apk' | head -n 1)"
           test -n "$apk_path"
-          cp "$apk_path" out/VsMessenger-android-universal.apk
+          cp "$apk_path" out/KoTalk-android-universal.apk
 
       - name: Upload Android artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: out/VsMessenger-android-universal.apk
+          path: out/KoTalk-android-universal.apk
 
   assemble-release:
     if: ${{ always() && needs.build-windows.result == 'success' && (needs.build-android.result == 'success' || needs.build-android.result == 'skipped') }}
@@ -148,12 +148,12 @@ jobs:
           prepare_args=(
             --version "$VERSION_INPUT"
             --channel "$channel"
-            --windows-zip incoming/windows/VsMessenger-win-x64.zip
+            --windows-zip incoming/windows/KoTalk-windows-x64.zip
             --force
           )
 
-          if [[ -f incoming/android/VsMessenger-android-universal.apk ]]; then
-            prepare_args+=(--android-apk incoming/android/VsMessenger-android-universal.apk)
+          if [[ -f incoming/android/KoTalk-android-universal.apk ]]; then
+            prepare_args+=(--android-apk incoming/android/KoTalk-android-universal.apk)
           fi
 
           ./scripts/release/release-prepare-assets.sh \

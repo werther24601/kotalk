@@ -45,6 +45,12 @@ public partial class ConversationWindowViewModel : ViewModelBase, IAsyncDisposab
 
     public async Task InitializeAsync()
     {
+        if (string.Equals(Environment.GetEnvironmentVariable("KOTALK_DESKTOP_SAMPLE_MODE"), "1", StringComparison.Ordinal))
+        {
+            LoadSampleConversation();
+            return;
+        }
+
         await LoadMessagesAsync();
 
         try
@@ -77,6 +83,47 @@ public partial class ConversationWindowViewModel : ViewModelBase, IAsyncDisposab
     partial void OnComposerTextChanged(string value) => SendMessageCommand.NotifyCanExecuteChanged();
     partial void OnErrorTextChanged(string? value) => OnPropertyChanged(nameof(HasErrorText));
     partial void OnConversationTitleChanged(string value) => OnPropertyChanged(nameof(ConversationGlyph));
+
+    private void LoadSampleConversation()
+    {
+        Messages.Clear();
+        StatusText = "●";
+        ErrorText = null;
+
+        foreach (var item in new[]
+                 {
+                     new MessageRowViewModel
+                     {
+                         MessageId = "detached-1",
+                         SenderName = "민지",
+                         Text = "이 창은 대화를 따로 두고 확인할 수 있게 분리했습니다.",
+                         MetaText = "09:10",
+                         IsMine = false,
+                         ServerSequence = 1
+                     },
+                     new MessageRowViewModel
+                     {
+                         MessageId = "detached-2",
+                         SenderName = _launchContext.DisplayName,
+                         Text = "검수하면서도 메인 받은함은 그대로 둘 수 있어요.",
+                         MetaText = "09:11",
+                         IsMine = true,
+                         ServerSequence = 2
+                     },
+                     new MessageRowViewModel
+                     {
+                         MessageId = "detached-3",
+                         SenderName = "민지",
+                         Text = "작업용 대화만 따로 띄워두기엔 이 구성이 훨씬 낫네요.",
+                         MetaText = "09:12",
+                         IsMine = false,
+                         ServerSequence = 3
+                     }
+                 })
+        {
+            Messages.Add(item);
+        }
+    }
 
     private async Task LoadMessagesAsync()
     {

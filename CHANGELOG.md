@@ -8,6 +8,13 @@
 
 ### Added
 
+- 공개 원격용 버전 태그 생성 스크립트 `scripts/release/release-create-tag.sh`
+- GitHub 릴리즈 게시 스크립트 `scripts/release/release-publish-github.sh`
+- 제2·제3 공개 원격 순차 게시 스크립트 `scripts/release/release-publish-public.sh`
+
+- `artifacts/builds/2026.04.16-alpha.4/` Windows 포터블 산출물과 체크섬 추가
+- `download-vstalk.phy.kr` HTTPS 미러를 실제 latest ZIP/manifest 경로로 활성화
+
 - `KoTalk` 공개 브랜드 기준과 다운로드/릴리즈 표면 정리
 - 공개 가입 전략을 `1회성 인증 중심`으로 재정의한 기획 문서 보강
 - Apache-2.0 기준의 라이선스/상표/기여 정책 정리
@@ -45,6 +52,15 @@
 - `TRUST_CENTER.md`, `SECURITY_RESPONSE.md`, `DEPLOYMENT_MODES.md`, `PRIVACY_AND_DATA_HANDLING.md`, `PROCUREMENT_READINESS.md`, `PORTFOLIO_CAPABILITIES.md`, `TRADEMARKS.md`, `CONTRIBUTOR_LICENSE_POLICY.md`, `LICENSE-FAQ.md` 추가
 
 ### Changed
+
+- 공개 원격 배포 정책을 `public/* 브랜치 + 버전 태그 + 릴리즈 페이지 + 자산` 기준으로 고정
+- Gitea/GitHub 릴리즈 게시 스크립트가 지정 원격 기준으로 동작하고 최신 스크린샷 자산도 함께 첨부하도록 확장
+- 비-`origin` 원격에 대한 로컬 pre-push 가드가 `public/*` 브랜치와 `refs/tags/*`를 함께 허용하도록 조정
+
+- 데스크톱·웹 UI의 설명형 카피를 더 줄이고 말풍선/칩/버튼 라운드를 2px 기준으로 축소
+- 웹 앱 버전을 `0.1.0-alpha.4`로 올리고 최신 캡처 자산을 재생성
+- 다운로드 스크립트, 릴리즈 워크플로, Caddy 예시 설정을 `download-vstalk.phy.kr`와 `KoTalk-*` 자산명 기준으로 정렬
+- 다운로드 미러 상태를 DNS/HTTPS 정상 동작 기준으로 문서에 반영
 
 - 공개 브랜드를 `KoTalk`로 정리하고 공개 문서의 직접적·내부지향 표현을 제거
 - README를 대중용 첫인상 기준으로 다시 구성하고 다운로드는 공식 미러와 저장소 릴리즈를 함께 표기

@@ -66,6 +66,14 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ConversationPaneHost_OnSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel && sender is Control control && control.IsVisible)
+        {
+            viewModel.UpdateConversationPaneWidth(control.Bounds.Width);
+        }
+    }
+
     protected override void OnClosed(EventArgs e)
     {
         if (_boundViewModel is not null)
