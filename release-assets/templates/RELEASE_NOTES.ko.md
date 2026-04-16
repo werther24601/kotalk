@@ -5,11 +5,13 @@
 
 ## 이번 빌드에 포함된 것
 
+- Windows x64 installer exe
+- Windows x64 onefile portable exe
 - Windows x64 portable zip
 - Android universal apk
 - 무결성 체크용 `SHA256SUMS.txt`
 - 버전 메타데이터 `version.json`, `latest.json`
-- 필요 시 한국어 스크린샷
+- 최신 스크린샷은 이 변경 노트 하단에서 직접 확인할 수 있습니다.
 
 ## 확인할 것
 

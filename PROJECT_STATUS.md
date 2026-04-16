@@ -9,7 +9,7 @@
 | Public brand | `KoTalk` |
 | Stage | `Alpha` |
 | Most usable surface | Mobile web live + Windows build |
-| Biggest current gap | Android 실빌드와 데스크톱 멀티윈도우 완성도 |
+| Biggest current gap | 네이티브 모바일 공용 UI 수렴과 데스크톱 멀티윈도우 완성도 |
 | Signup direction | 공개형 1회성 인증 중심으로 재설계 중 |
 | Tone of this repo | 현재 동작 범위와 남은 갭을 함께 적는 제품형 저장소 |
 
@@ -19,6 +19,7 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 
 - Windows 데스크톱 클라이언트 빌드
 - 모바일 웹 실서비스 채널
+- Android APK 빌드 기준선
 - 기본 인증, 최근 대화, 메시지 전송, 읽기 커서, 세션 복구 루프
 - 최신 기준 스크린샷 세트
 - 릴리즈 경로와 다운로드 경로 문서
@@ -29,8 +30,10 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 |---|---|---|---|
 | Windows desktop | 저장소 빌드 / 릴리즈 산출물 | Buildable | 핵심 메시징 루프 검증 가능 |
 | Mobile web | [vstalk.phy.kr](https://vstalk.phy.kr) | Live | 가입, 대화, 검색, 보관 1차 흐름 제공 |
-| Android | 저장소 릴리즈 예정 | In progress | 문서와 배포 구조 우선 정리 중 |
-| Official mirror | [download-vstalk.phy.kr](https://download-vstalk.phy.kr) | Live | Windows latest와 version manifest를 HTTPS로 제공 |
+| Android | 저장소 APK / 릴리즈 파이프라인 | Buildable | alpha WebView 셸과 APK 산출물 생성 가능 |
+| iOS | Apple 배포 채널 예정 | Planned | 자체 미러가 아닌 Apple 채널 전제 |
+| Linux | 저장소 빌드 예정 | Planned | Windows와 같은 공유 UI 축으로 준비 |
+| Official mirror | [download-vstalk.phy.kr](https://download-vstalk.phy.kr) | Live | Windows latest, Android latest, version manifest를 HTTPS로 제공 |
 
 ## Verified Now
 
@@ -38,6 +41,7 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 
 - Windows 클라이언트는 저장소 기준으로 빌드 가능한 상태입니다.
 - 모바일 웹은 [vstalk.phy.kr](https://vstalk.phy.kr)에서 공개 중입니다.
+- Android APK는 저장소 기준으로 생성 가능한 상태입니다.
 - 기본 메시징 루프와 세션 복구 흐름은 구현돼 있습니다.
 - 검색, 보관, 빈 상태 UX는 1차 개편이 반영돼 있습니다.
 - 최신 스크린샷은 저장소에 함께 보관됩니다.
@@ -66,7 +70,9 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 
 ## In Progress
 
-- Android 첫 실사용 빌드
+- Android APK 서명과 배포 품질 정리
+- iOS 채널 준비와 Apple 배포 절차 정리
+- Linux 네이티브 패키징 기준선
 - 릴리즈 페이지와 미러 간 latest 라우트 통합
 - 검색 범위 확장
 - 파일 전송
@@ -76,10 +82,12 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 
 아직 부족한 부분도 그대로 남깁니다.
 
-- Android 실사용 빌드는 아직 제공되지 않습니다.
+- Android는 현재 WebView 셸 중심의 첫 APK 기준선으로, 네이티브 모바일 경험은 더 다듬어야 합니다.
+- iOS 클라이언트는 아직 시작되지 않았습니다.
+- Linux 클라이언트는 장기 목표로만 정리돼 있습니다.
 - 파일 전송은 미구현입니다.
 - 검색은 전역 파일/링크/사람 범위까지 확장되지 않았습니다.
-- 공식 다운로드 미러는 현재 Windows latest와 version manifest 기준으로 동작합니다.
+- 공식 다운로드 미러는 현재 Windows latest, Android latest, version manifest 기준으로 동작합니다.
 - 데스크톱 멀티 윈도우는 방향은 잡혀 있지만, 실제 생산성 흐름은 더 다듬어야 합니다.
 
 ## Download And Release Paths
@@ -111,3 +119,4 @@ KoTalk는 아직 모든 플랫폼이 완성된 상태는 아니지만, “문서
 - 라이브 우선순위: [문서/35-live-user-review-and-priority-backlog.md](문서/35-live-user-review-and-priority-backlog.md)
 - 가입/온보딩 정책: [문서/10-signup-onboarding-and-auth-policy.md](문서/10-signup-onboarding-and-auth-policy.md)
 - 신뢰와 보안 표면: [TRUST_CENTER.md](TRUST_CENTER.md), [SECURITY.md](SECURITY.md)
+- 클라이언트 플랫폼 결론: [CLIENT_PLATFORM_DECISION.md](CLIENT_PLATFORM_DECISION.md)

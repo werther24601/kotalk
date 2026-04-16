@@ -15,7 +15,7 @@ KoTalk의 릴리즈는 단순한 파일 업로드가 아니라, 산출물과 공
 ## Current Note
 
 2026-04-16 기준 [download-vstalk.phy.kr](https://download-vstalk.phy.kr)는 DNS와 HTTPS가 정상입니다.
-현재는 Windows latest와 version manifest를 제공하고, 저장소 릴리즈 경로를 함께 유지합니다.
+현재 기준선은 Windows installer / onefile / zip, Android latest APK, version manifest를 함께 제공하는 구조입니다.
 
 ## Minimum Release Contract
 
@@ -25,13 +25,16 @@ KoTalk의 릴리즈는 단순한 파일 업로드가 아니라, 산출물과 공
 4. 최신 스크린샷이 현재 UI를 대표해야 합니다.
 5. 다운로드 경로와 릴리즈 링크가 함께 갱신돼야 합니다.
 6. 공개 원격은 `브랜치 + 태그 + 릴리즈 페이지 + 자산`을 한 세트로 맞춥니다.
-7. 공개 릴리즈 페이지에는 산출물과 최신 스크린샷을 함께 게시합니다.
+7. 공개 릴리즈 페이지의 Assets는 실행 파일, 체크섬, 메타데이터처럼 실제 배포에 필요한 파일만 남깁니다.
+8. 최신 스크린샷은 Assets 첨부 대신 변경 노트 안에 담고, 다운로드 미러의 정적 경로를 이미지 소스로 사용합니다.
 
 ## Platform Policy
 
-- Windows: 빌드 산출물, 스크린샷, 체크섬을 함께 남깁니다.
+- Windows: installer, onefile portable, zip, 체크섬을 기본 산출물로 유지합니다.
 - Mobile web: 라이브 반영이 있으면 스크린샷과 상태 문서를 함께 갱신합니다.
 - Android: APK 공개 시 공식 미러와 저장소 릴리즈를 함께 맞춥니다.
+- iOS: 자체 미러나 저장소 Assets로 직접 배포하지 않고, Apple 배포 채널을 전제로 준비합니다.
+- Linux: Windows와 함께 장기적인 네이티브 클라이언트 축으로 다루며, 공유 UI 프레임워크 기준선을 유지합니다.
 
 ## Public Release Sequence
 
@@ -41,7 +44,8 @@ KoTalk의 릴리즈는 단순한 파일 업로드가 아니라, 산출물과 공
 4. 제2 공개 레포에 브랜치와 태그를 푸시합니다.
 5. 제2 공개 레포 릴리즈 페이지에 자산과 노트를 게시합니다.
 6. 명시적 요청이 있을 때만 같은 태그와 자산을 제3 공개 레포에 게시합니다.
-7. `download-vstalk.phy.kr`는 최신 포인터만 유지합니다.
+7. `download-vstalk.phy.kr`는 `Windows latest landing`, `Android latest landing`, `latest/version.json` 포인터를 유지합니다.
+8. 공개 릴리즈 노트에는 최신 스크린샷을 포함하고, 공개 릴리즈 Assets에는 스크린샷을 첨부하지 않습니다.
 
 ## Release Scripts
 

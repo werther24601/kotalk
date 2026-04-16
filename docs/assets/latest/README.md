@@ -13,4 +13,5 @@
 - 현재 포함:
   - Windows 데스크톱 셸
   - Windows 온보딩/대화 화면
+  - Android APK shell 목업
   - `vstalk` 모바일 웹 온보딩/목록/검색/보관/대화 화면

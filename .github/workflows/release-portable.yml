@@ -31,7 +31,7 @@ permissions:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -42,21 +42,30 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore desktop project
-        run: dotnet restore src/PhysOn.Desktop/PhysOn.Desktop.csproj
+      - name: Install NSIS
+        run: sudo apt-get update && sudo apt-get install -y nsis
 
-      - name: Publish portable desktop build
-        run: dotnet publish src/PhysOn.Desktop/PhysOn.Desktop.csproj -c Release -r win-x64 --self-contained true -o out/win-x64
+      - name: Build Windows release assets
+        env:
+          VERSION_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+        run: |
+          chmod +x scripts/release/build-windows-distributions.sh
+          ./scripts/release/build-windows-distributions.sh \
+            --version "$VERSION_INPUT" \
+            --output out
 
-      - name: Create portable ZIP
-        shell: pwsh
-        run: Compress-Archive -Path out/win-x64/* -DestinationPath out/KoTalk-windows-x64.zip
+          cp out/KoTalk-windows-x64-"$VERSION_INPUT".zip out/KoTalk-windows-x64.zip
+          cp out/KoTalk-windows-x64-onefile-"$VERSION_INPUT".exe out/KoTalk-windows-x64-onefile.exe
+          cp out/KoTalk-windows-x64-installer-"$VERSION_INPUT".exe out/KoTalk-windows-x64-installer.exe
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-portable
-          path: out/KoTalk-windows-x64.zip
+          name: windows-release
+          path: |
+            out/KoTalk-windows-x64.zip
+            out/KoTalk-windows-x64-onefile.exe
+            out/KoTalk-windows-x64-installer.exe
 
   build-android:
     if: ${{ hashFiles('src/PhysOn.Mobile.Android/*.csproj') != '' }}
@@ -80,23 +89,16 @@ jobs:
       - name: Install Android workload
         run: dotnet workload install android
 
-      - name: Restore Android project
-        run: dotnet restore src/PhysOn.Mobile.Android/PhysOn.Mobile.Android.csproj
-
       - name: Publish Android APK
+        env:
+          VERSION_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
         run: |
-          dotnet publish src/PhysOn.Mobile.Android/PhysOn.Mobile.Android.csproj \
-            -c Release \
-            -f net8.0-android \
-            -p:AndroidPackageFormat=apk \
-            -p:AndroidKeyStore=false \
-            -o out/android
+          chmod +x scripts/release/build-android-apk.sh
+          ./scripts/release/build-android-apk.sh \
+            --version "$VERSION_INPUT" \
+            --output out
 
-      - name: Collect Android artifact
-        run: |
-          apk_path="$(find out/android -type f -name '*.apk' | head -n 1)"
-          test -n "$apk_path"
-          cp "$apk_path" out/KoTalk-android-universal.apk
+          cp out/KoTalk-android-universal-"$VERSION_INPUT".apk out/KoTalk-android-universal.apk
 
       - name: Upload Android artifact
         uses: actions/upload-artifact@v4
@@ -118,7 +120,7 @@ jobs:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: windows-portable
+          name: windows-release
           path: incoming/windows
 
       - name: Download Android artifact
@@ -149,6 +151,8 @@ jobs:
             --version "$VERSION_INPUT"
             --channel "$channel"
             --windows-zip incoming/windows/KoTalk-windows-x64.zip
+            --windows-portable-exe incoming/windows/KoTalk-windows-x64-onefile.exe
+            --windows-installer-exe incoming/windows/KoTalk-windows-x64-installer.exe
             --force
           )
 

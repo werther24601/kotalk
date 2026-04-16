@@ -8,6 +8,9 @@
 
 ### Added
 
+- Android WebView 기반 첫 APK 프로젝트와 `KoTalk-android-universal-*.apk` 산출물 경로 추가
+- Windows `installer exe + onefile exe + zip` 3종 배포 체인 추가
+- 모바일/iOS/Linux 프레임워크 결론 문서 `CLIENT_PLATFORM_DECISION.md` 추가
 - 공개 원격용 버전 태그 생성 스크립트 `scripts/release/release-create-tag.sh`
 - GitHub 릴리즈 게시 스크립트 `scripts/release/release-publish-github.sh`
 - 제2·제3 공개 원격 순차 게시 스크립트 `scripts/release/release-publish-public.sh`
@@ -53,6 +56,8 @@
 
 ### Changed
 
+- 공개 릴리즈 Assets에서 스크린샷과 릴리즈 노트 첨부를 제거하고, 최신 화면은 변경 노트 본문에서 직접 확인하도록 조정
+- Android 상태를 `계획`에서 `첫 APK 기준선 확보` 단계로 상향하고, iOS/Linux 계획을 공개 문서에 명시
 - 데스크톱/웹 스크린샷 캡처를 앱 창·앱 셸 기준으로 정리하고, README·SHOWCASE 이미지를 실제 종횡비에 맞춘 `width/height` 기준으로 재배치
 - 공개 원격 배포 정책을 `public/* 브랜치 + 버전 태그 + 릴리즈 페이지 + 자산` 기준으로 고정
 - Gitea/GitHub 릴리즈 게시 스크립트가 지정 원격 기준으로 동작하고 최신 스크린샷 자산도 함께 첨부하도록 확장

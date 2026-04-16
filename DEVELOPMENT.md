@@ -80,22 +80,21 @@ dotnet test PhysOn.sln -c Debug
 Windows:
 
 ```bash
-dotnet publish src/PhysOn.Desktop/PhysOn.Desktop.csproj \
-  -c Release \
-  -r win-x64 \
-  --self-contained true \
-  -o artifacts/release/v0.1.0-alpha.1-win-x64
+./scripts/release/build-windows-distributions.sh \
+  --version 2026.04.16-alpha.6
 ```
+
+생성물:
+
+- `KoTalk-windows-x64-<version>.zip`
+- `KoTalk-windows-x64-onefile-<version>.exe`
+- `KoTalk-windows-x64-installer-<version>.exe`
 
 Android:
 
 ```bash
-dotnet workload install android
-dotnet publish src/PhysOn.Mobile.Android/PhysOn.Mobile.Android.csproj \
-  -c Release \
-  -f net8.0-android \
-  -p:AndroidPackageFormat=apk \
-  -o artifacts/release/android
+./scripts/release/build-android-apk.sh \
+  --version 2026.04.16-alpha.6
 ```
 
 공개 산출물 네이밍은 `KoTalk-*` 기준으로 정리하는 방향이고, 현재 내부 스크립트와 프로젝트명은 별도 정렬 단계에 있습니다.
@@ -104,10 +103,12 @@ dotnet publish src/PhysOn.Mobile.Android/PhysOn.Mobile.Android.csproj \
 
 ```bash
 ./scripts/release/release-prepare-assets.sh \
-  --version v0.1.0-alpha.1 \
+  --version 2026.04.16-alpha.6 \
   --channel alpha \
-  --windows-zip artifacts/release/PhysOn-win-x64-v0.1.0-alpha.1.zip \
-  --android-apk artifacts/release/PhysOn-android-universal-v0.1.0-alpha.1.apk \
+  --windows-zip artifacts/builds/2026.04.16-alpha.6/KoTalk-windows-x64-2026.04.16-alpha.6.zip \
+  --windows-portable-exe artifacts/builds/2026.04.16-alpha.6/KoTalk-windows-x64-onefile-2026.04.16-alpha.6.exe \
+  --windows-installer-exe artifacts/builds/2026.04.16-alpha.6/KoTalk-windows-x64-installer-2026.04.16-alpha.6.exe \
+  --android-apk artifacts/builds/2026.04.16-alpha.6/KoTalk-android-universal-2026.04.16-alpha.6.apk \
   --screenshots artifacts/screenshots \
   --force
 ```

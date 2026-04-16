@@ -7,8 +7,8 @@
 	root * /srv/download
 	redir /windows /windows/latest 302
 	redir /android /android/latest 302
-	redir /windows/latest /latest/KoTalk-windows-x64.zip 302
-	redir /android/latest /latest/KoTalk-android-universal.apk 302
+	redir /windows/latest /latest/windows/index.html 302
+	redir /android/latest /latest/android/index.html 302
 	redir /latest /latest/version.json 302
 	header {
 		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"

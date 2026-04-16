@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface_canvas">
+
+    <WebView
+        android:id="@+id/app_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAutofill="noExcludeDescendants"
+        android:overScrollMode="never" />
+
+    <ProgressBar
+        android:id="@+id/loading_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_gravity="top"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressBackgroundTint="@color/surface_border"
+        android:progressTint="@color/accent_primary"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:id="@+id/offline_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="28dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="20dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/appicon" />
+
+        <ImageButton
+            android:id="@+id/retry_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/retry_button_background"
+            android:contentDescription="@string/reload"
+            android:padding="16dp"
+            android:scaleType="centerInside"
+            android:src="@android:drawable/ic_popup_sync" />
+    </LinearLayout>
+</FrameLayout>

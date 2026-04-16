@@ -8,6 +8,10 @@ Usage:
 
 Options:
   --windows-zip <path>     Windows x64 ZIP artifact path
+  --windows-portable-exe <path>
+                          Windows onefile portable EXE artifact path
+  --windows-installer-exe <path>
+                          Windows installer EXE artifact path
   --android-apk <path>     Android universal APK artifact path
   --zip <path>             Backward-compatible alias for --windows-zip
   --channel <name>         Release channel. Default: alpha
@@ -23,6 +27,8 @@ EOF
 version=""
 channel="alpha"
 windows_zip=""
+windows_portable_exe=""
+windows_installer_exe=""
 android_apk=""
 notes_path=""
 screenshots_dir=""
@@ -40,6 +46,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --windows-zip|--zip)
       windows_zip="${2:-}"
+      shift 2
+      ;;
+    --windows-portable-exe)
+      windows_portable_exe="${2:-}"
+      shift 2
+      ;;
+    --windows-installer-exe)
+      windows_installer_exe="${2:-}"
       shift 2
       ;;
     --android-apk)
@@ -75,14 +89,24 @@ if [[ -z "$version" ]]; then
   exit 1
 fi
 
-if [[ -z "$windows_zip" && -z "$android_apk" ]]; then
-  echo "At least one artifact must be provided: --windows-zip or --android-apk" >&2
+if [[ -z "$windows_zip" && -z "$windows_portable_exe" && -z "$windows_installer_exe" && -z "$android_apk" ]]; then
+  echo "At least one artifact must be provided for Windows or Android." >&2
   usage >&2
   exit 1
 fi
 
 if [[ -n "$windows_zip" && ! -f "$windows_zip" ]]; then
   echo "Windows ZIP artifact not found: $windows_zip" >&2
+  exit 1
+fi
+
+if [[ -n "$windows_portable_exe" && ! -f "$windows_portable_exe" ]]; then
+  echo "Windows portable EXE artifact not found: $windows_portable_exe" >&2
+  exit 1
+fi
+
+if [[ -n "$windows_installer_exe" && ! -f "$windows_installer_exe" ]]; then
+  echo "Windows installer EXE artifact not found: $windows_installer_exe" >&2
   exit 1
 fi
 
@@ -146,12 +170,40 @@ else
 fi
 cp "$release_root/RELEASE_NOTES.ko.md" "$latest_root/RELEASE_NOTES.ko.md"
 
+append_screenshot_gallery() {
+  local notes_file="$1"
+  local screenshot_root_url="$2"
+
+  if [[ -z "$screenshots_dir" ]]; then
+    return 0
+  fi
+
+  mapfile -t note_screenshots < <(find "$screenshots_dir" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) | sort)
+  if [[ ${#note_screenshots[@]} -eq 0 ]]; then
+    return 0
+  fi
+
+  {
+    printf '\n## 최신 화면\n\n'
+    printf '스크린샷은 릴리즈 Assets 대신 변경 노트 안에서 직접 확인할 수 있도록 정리합니다.\n\n'
+    for screenshot in "${note_screenshots[@]}"; do
+      name="$(basename "$screenshot")"
+      label="${name%.*}"
+      printf '### %s\n\n' "$label"
+      printf '![%s](%s/%s)\n\n' "$label" "$screenshot_root_url" "$name"
+    done
+  } >> "$notes_file"
+}
+
 if [[ -n "$screenshots_dir" ]]; then
   while IFS= read -r screenshot; do
     cp "$screenshot" "$release_root/screenshots/$(basename "$screenshot")"
     cp "$screenshot" "$latest_root/screenshots/$(basename "$screenshot")"
   done < <(find "$screenshots_dir" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) | sort)
 fi
+
+append_screenshot_gallery "$release_root/RELEASE_NOTES.ko.md" "$download_base_url/releases/$version/screenshots"
+cp "$release_root/RELEASE_NOTES.ko.md" "$latest_root/RELEASE_NOTES.ko.md"
 
 platform_count=0
 platforms_json=""
@@ -166,6 +218,23 @@ append_platform_json() {
   fi
   platforms_json+="$body"
   platform_count=$((platform_count + 1))
+}
+
+join_json_lines() {
+  local result=""
+  local total=$#
+  local index=0
+  local line=""
+
+  for line in "$@"; do
+    index=$((index + 1))
+    result+="$line"
+    if (( index < total )); then
+      result+=$',\n'
+    fi
+  done
+
+  printf '%s' "$result"
 }
 
 write_platform_version_json() {
@@ -187,38 +256,69 @@ $body
 EOF
 }
 
-if [[ -n "$windows_zip" ]]; then
-  windows_release_name="KoTalk-windows-x64-$version.zip"
-  windows_latest_name="KoTalk-windows-x64.zip"
+if [[ -n "$windows_zip" || -n "$windows_portable_exe" || -n "$windows_installer_exe" ]]; then
   windows_release_dir="$release_root/windows/x64"
   windows_latest_dir="$latest_root/windows"
   mkdir -p "$windows_release_dir" "$windows_latest_dir"
 
-  cp "$windows_zip" "$windows_release_dir/$windows_release_name"
-  cp "$windows_zip" "$windows_latest_dir/$windows_latest_name"
+  windows_release_hash_items=()
+  windows_latest_hash_items=()
+  windows_platform_lines=(
+    '    "name": "KoTalk for Windows"'
+    '    "kind": "desktop"'
+    '    "arch": "x64"'
+    "    \"landingUrl\": \"$download_base_url/windows/latest\""
+  )
+
+  if [[ -n "$windows_zip" ]]; then
+    windows_release_name="KoTalk-windows-x64-$version.zip"
+    windows_latest_name="KoTalk-windows-x64.zip"
+    cp "$windows_zip" "$windows_release_dir/$windows_release_name"
+    cp "$windows_zip" "$windows_latest_dir/$windows_latest_name"
+    release_hash_paths+=("windows/x64/$windows_release_name")
+    latest_hash_paths+=("windows/$windows_latest_name")
+    windows_release_hash_items+=("$windows_release_name")
+    windows_latest_hash_items+=("$windows_latest_name")
+    windows_platform_lines+=("    \"portableZipUrl\": \"$download_base_url/windows/latest/$windows_latest_name\"")
+  fi
+
+  if [[ -n "$windows_portable_exe" ]]; then
+    windows_onefile_release_name="KoTalk-windows-x64-onefile-$version.exe"
+    windows_onefile_latest_name="KoTalk-windows-x64-onefile.exe"
+    cp "$windows_portable_exe" "$windows_release_dir/$windows_onefile_release_name"
+    cp "$windows_portable_exe" "$windows_latest_dir/$windows_onefile_latest_name"
+    release_hash_paths+=("windows/x64/$windows_onefile_release_name")
+    latest_hash_paths+=("windows/$windows_onefile_latest_name")
+    windows_release_hash_items+=("$windows_onefile_release_name")
+    windows_latest_hash_items+=("$windows_onefile_latest_name")
+    windows_platform_lines+=("    \"portableExeUrl\": \"$download_base_url/windows/latest/$windows_onefile_latest_name\"")
+  fi
+
+  if [[ -n "$windows_installer_exe" ]]; then
+    windows_installer_release_name="KoTalk-windows-x64-installer-$version.exe"
+    windows_installer_latest_name="KoTalk-windows-x64-installer.exe"
+    cp "$windows_installer_exe" "$windows_release_dir/$windows_installer_release_name"
+    cp "$windows_installer_exe" "$windows_latest_dir/$windows_installer_latest_name"
+    release_hash_paths+=("windows/x64/$windows_installer_release_name")
+    latest_hash_paths+=("windows/$windows_installer_latest_name")
+    windows_release_hash_items+=("$windows_installer_release_name")
+    windows_latest_hash_items+=("$windows_installer_latest_name")
+    windows_platform_lines+=("    \"installerUrl\": \"$download_base_url/windows/latest/$windows_installer_latest_name\"")
+  fi
+
+  windows_platform_lines+=("    \"sha256Url\": \"$download_base_url/windows/latest/SHA256SUMS.txt\"")
 
   (
     cd "$windows_release_dir"
-    sha256sum "$windows_release_name" > SHA256SUMS.txt
+    sha256sum "${windows_release_hash_items[@]}" > SHA256SUMS.txt
   )
 
   (
     cd "$windows_latest_dir"
-    sha256sum "$windows_latest_name" > SHA256SUMS.txt
+    sha256sum "${windows_latest_hash_items[@]}" > SHA256SUMS.txt
   )
 
-  release_hash_paths+=("windows/x64/$windows_release_name")
-  latest_hash_paths+=("windows/$windows_latest_name")
-
-  windows_platform_body="$(cat <<EOF
-    "name": "KoTalk for Windows",
-    "kind": "desktop",
-    "arch": "x64",
-    "latestUrl": "$download_base_url/windows/latest",
-    "portableZipUrl": "$download_base_url/windows/latest/$windows_latest_name",
-    "sha256Url": "$download_base_url/windows/latest/SHA256SUMS.txt"
-EOF
-)"
+  windows_platform_body="$(join_json_lines "${windows_platform_lines[@]}")"
 
   append_platform_json "$(cat <<EOF
     "windows": {
@@ -298,12 +398,12 @@ if (( ${#latest_hash_paths[@]} > 0 )); then
 fi
 
 windows_landing_card=""
-if [[ -n "$windows_zip" ]]; then
+if [[ -n "$windows_zip" || -n "$windows_portable_exe" || -n "$windows_installer_exe" ]]; then
   windows_landing_card="$(cat <<EOF
       <a class="card" href="/windows/latest">
         <span class="eyebrow">Windows</span>
         <strong>Latest Windows build</strong>
-        <span>ZIP package and SHA256 checksum</span>
+        <span>Installer, onefile portable, ZIP, SHA256</span>
       </a>
 EOF
 )"
@@ -319,6 +419,156 @@ if [[ -n "$android_apk" ]]; then
       </a>
 EOF
 )"
+fi
+
+windows_installer_card=""
+if [[ -n "$windows_installer_exe" ]]; then
+  windows_installer_card="$(cat <<EOF
+          <a class="card" href="/windows/latest/KoTalk-windows-x64-installer.exe">
+            <span class="eyebrow">Installer</span>
+            <strong>Windows installer</strong>
+            <span>설치형 EXE</span>
+          </a>
+EOF
+)"
+fi
+
+windows_portable_card=""
+if [[ -n "$windows_portable_exe" ]]; then
+  windows_portable_card="$(cat <<EOF
+          <a class="card" href="/windows/latest/KoTalk-windows-x64-onefile.exe">
+            <span class="eyebrow">Portable</span>
+            <strong>Onefile executable</strong>
+            <span>압축 해제 없이 바로 실행</span>
+          </a>
+EOF
+)"
+fi
+
+windows_zip_card=""
+if [[ -n "$windows_zip" ]]; then
+  windows_zip_card="$(cat <<EOF
+          <a class="card" href="/windows/latest/KoTalk-windows-x64.zip">
+            <span class="eyebrow">Archive</span>
+            <strong>Extracted bundle ZIP</strong>
+            <span>폴더 배포본 압축 파일</span>
+          </a>
+EOF
+)"
+fi
+
+if [[ -d "${latest_root}/windows" ]]; then
+  cat > "${latest_root}/windows/index.html" <<EOF
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KoTalk for Windows</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f3ee;
+        --surface: #ffffff;
+        --border: #ddd1c4;
+        --text: #20242b;
+        --soft: #5f5a54;
+        --accent: #f05b2b;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+      main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+      .hero, .card { background: var(--surface); border: 1px solid var(--border); }
+      .hero { padding: 24px; }
+      h1 { margin: 0 0 10px; font-size: 30px; letter-spacing: -0.04em; }
+      p { margin: 0; line-height: 1.6; color: var(--soft); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 20px; }
+      .card { display: flex; flex-direction: column; gap: 8px; padding: 16px; text-decoration: none; color: inherit; }
+      .card:hover { border-color: var(--accent); }
+      .eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--soft); }
+      .meta { margin-top: 16px; color: var(--soft); }
+      .meta a { color: inherit; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>KoTalk for Windows</h1>
+        <p>설치형과 onefile portable, 압축본을 같은 기준선으로 제공합니다.</p>
+        <div class="grid">
+$windows_installer_card
+$windows_portable_card
+$windows_zip_card
+          <a class="card" href="/windows/latest/SHA256SUMS.txt">
+            <span class="eyebrow">Integrity</span>
+            <strong>SHA256SUMS</strong>
+            <span>체크섬 확인</span>
+          </a>
+        </div>
+        <p class="meta"><a href="/latest/version.json">version.json</a></p>
+      </section>
+    </main>
+  </body>
+</html>
+EOF
+fi
+
+if [[ -d "${latest_root}/android" ]]; then
+  cat > "${latest_root}/android/index.html" <<EOF
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KoTalk for Android</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f3ee;
+        --surface: #ffffff;
+        --border: #ddd1c4;
+        --text: #20242b;
+        --soft: #5f5a54;
+        --accent: #f05b2b;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+      main { max-width: 760px; margin: 0 auto; padding: 40px 20px 56px; }
+      .hero, .card { background: var(--surface); border: 1px solid var(--border); }
+      .hero { padding: 24px; }
+      h1 { margin: 0 0 10px; font-size: 30px; letter-spacing: -0.04em; }
+      p { margin: 0; line-height: 1.6; color: var(--soft); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 20px; }
+      .card { display: flex; flex-direction: column; gap: 8px; padding: 16px; text-decoration: none; color: inherit; }
+      .card:hover { border-color: var(--accent); }
+      .eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--soft); }
+      .meta { margin-top: 16px; color: var(--soft); }
+      .meta a { color: inherit; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>KoTalk for Android</h1>
+        <p>KoTalk Android shell APK와 버전 메타데이터를 같은 기준선으로 제공합니다.</p>
+        <div class="grid">
+          <a class="card" href="/android/latest/KoTalk-android-universal.apk">
+            <span class="eyebrow">APK</span>
+            <strong>Universal APK</strong>
+            <span>직접 설치용 패키지</span>
+          </a>
+          <a class="card" href="/android/latest/SHA256SUMS.txt">
+            <span class="eyebrow">Integrity</span>
+            <strong>SHA256SUMS</strong>
+            <span>체크섬 확인</span>
+          </a>
+        </div>
+        <p class="meta"><a href="/latest/version.json">version.json</a></p>
+      </section>
+    </main>
+  </body>
+</html>
+EOF
 fi
 
 cat > "$download_root/index.html" <<EOF

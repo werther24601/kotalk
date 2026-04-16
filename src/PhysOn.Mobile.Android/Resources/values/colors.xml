@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="surface_canvas">#F7F3EE</color>
+  <color name="surface_card">#FFFFFF</color>
+  <color name="surface_border">#DDD1C4</color>
+  <color name="ink_primary">#20242B</color>
+  <color name="accent_primary">#F05B2B</color>
+</resources>

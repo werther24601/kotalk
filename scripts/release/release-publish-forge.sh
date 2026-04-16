@@ -168,9 +168,11 @@ case "$version" in
 esac
 
 mapfile -t asset_files < <(
-  find "$release_root" -type f \
-    \( -name '*.zip' -o -name '*.apk' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name 'RELEASE_NOTES.ko.md' -o -name 'SHA256SUMS.txt' -o -name 'version.json' \) \
-    | sort
+  {
+    find "$release_root" -type f \( -name '*.zip' -o -name '*.exe' -o -name '*.apk' \)
+    [[ -f "$release_root/SHA256SUMS.txt" ]] && printf '%s\n' "$release_root/SHA256SUMS.txt"
+    [[ -f "$release_root/version.json" ]] && printf '%s\n' "$release_root/version.json"
+  } | sort
 )
 
 if [[ ${#asset_files[@]} -eq 0 ]]; then

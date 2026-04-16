@@ -3,7 +3,8 @@
 ## 현재 상태
 
 - Alpha 가입, 대화 목록, 대화창, 텍스트 전송이 동작하는 첫 사용 가능 프로토타입 확보
-- Windows x64 portable build 생성 가능
+- Windows x64 installer / onefile / zip 생성 가능
+- Android APK alpha 기준선 생성 가능
 - `vstalk.phy.kr` 모바일 웹앱과 API를 VPS에 실제 배포
 - 원격 저장소에 최신 기준 스크린샷 포함 시작
 - `vstalk.phy.kr` 모바일 웹앱 MVP 빌드 및 same-origin API 검증 완료
@@ -15,9 +16,11 @@
 - [x] 메시지 전송
 - [x] 읽기 커서 갱신
 - [x] Windows portable zip 생성
+- [x] Windows installer / onefile / zip 생성
 - [x] 모바일 웹앱 PWA 셸/가입/대화/전송
 - [x] VPS 공개 API 상시 구동
 - [x] `vstalk.phy.kr` same-origin 웹앱 배포
+- [x] Android WebView 셸과 첫 APK 생성
 - [ ] 데스크톱 WebSocket 실시간 반영
 
 ## v0.2 Collaboration Basics
@@ -30,11 +33,18 @@
 
 ## v0.2 Android First-class
 
-- [ ] Android 셸/네비게이션 골격
-- [ ] Android 로그인/대화 목록/대화 진입 MVP
+- [x] Android 셸/네비게이션 골격
+- [x] Android 로그인/대화 목록/대화 진입 MVP 기준선
 - [ ] APK 서명 및 산출물 규칙 확정
 - [ ] Windows/Android 동시 릴리즈 메타데이터 검증
 - [ ] Forge Releases + VPS 미러 동시 게시
+
+## v0.3 Shared Client Expansion
+
+- [ ] Avalonia 기반 공유 클라이언트 구조를 Android/iOS/Linux 관점으로 재정리
+- [ ] iOS 배포 채널 준비 문서와 빌드 체인 검증
+- [ ] Linux 패키징 기준선 확보
+- [ ] Android WebView 셸에서 네이티브 공용 UI 단계로 이행할 범위 정의
 
 ## v0.2 Mobile Web Entry
 
@@ -89,6 +99,6 @@
 
 - 하나의 태그는 하나의 릴리즈 레코드를 뜻합니다.
 - 같은 버전 번호 아래에 Windows와 Android 자산을 함께 게시합니다.
-- 원격 저장소에는 최신 기준 스크린샷도 함께 포함합니다.
+- 원격 저장소 릴리즈 Assets에는 실행 파일과 체크섬만 두고, 최신 스크린샷은 변경 노트 안에서 참조합니다.
 - 다운로드 미러와 원격 Releases는 같은 자산 이름과 같은 노트를 기준으로 맞춥니다.
 - 모바일 웹은 설치형 산출물 대신 `https://vstalk.phy.kr`를 기준 진입점으로 관리합니다.

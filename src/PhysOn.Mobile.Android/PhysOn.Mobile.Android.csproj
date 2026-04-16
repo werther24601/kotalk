@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>26</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PhysOn.Mobile.Android</RootNamespace>
+    <AssemblyName>KoTalk.Mobile.Android</AssemblyName>
+    <ApplicationId>kr.physia.kotalk</ApplicationId>
+    <ApplicationVersion>6</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1.0-alpha.6</ApplicationDisplayVersion>
+    <Company>PHYSIA</Company>
+    <Authors>PHYSIA</Authors>
+    <Product>KoTalk</Product>
+    <Description>KoTalk Android shell for the live Korean messaging experience</Description>
+    <ApplicationTitle>KoTalk</ApplicationTitle>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <AndroidUseDesignerAssembly>false</AndroidUseDesignerAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(JavaSdkDirectory)' == '' and '$(JAVA_HOME)' != ''">
+    <JavaSdkDirectory>$(JAVA_HOME)</JavaSdkDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(JavaSdkDirectory)' == '' and Exists('/usr/lib/jvm/java-17-openjdk-amd64')">
+    <JavaSdkDirectory>/usr/lib/jvm/java-17-openjdk-amd64</JavaSdkDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AndroidSdkDirectory)' == '' and '$(ANDROID_SDK_ROOT)' != ''">
+    <AndroidSdkDirectory>$(ANDROID_SDK_ROOT)</AndroidSdkDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AndroidSdkDirectory)' == '' and Exists('$([System.Environment]::GetEnvironmentVariable(`HOME`))/Android/Sdk')">
+    <AndroidSdkDirectory>$([System.Environment]::GetEnvironmentVariable('HOME'))/Android/Sdk</AndroidSdkDirectory>
+  </PropertyGroup>
+</Project>

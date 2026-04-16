@@ -53,7 +53,7 @@ type IconName =
   | 'group'
 
 const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? ''
-const APP_VERSION = 'web-0.1.0-alpha.5'
+const APP_VERSION = 'web-0.1.0-alpha.6'
 
 const CONNECTION_LABEL: Record<ConnectionState, string> = {
   idle: '준비 중',
